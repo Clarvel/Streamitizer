@@ -1,0 +1,52 @@
+<meta charset="utf-8">
+<html>
+	<head>
+		<title>Picarto Notifier Popup Window</title>
+		<link rel="stylesheet" type="text/css" href="../modules/bootstrap/bootstrap.min.css">
+		<script type="module" src="../modules/bootstrap/bootstrap.bundle.min.js"></script>
+		<script type="module" src="../js/UI/popup.js"></script>
+		<link rel="stylesheet" type="text/css" href="../css/popup.css">
+	</head>
+	<body>
+		<div class="container">
+			<div class="d-flex justify-content-between">
+				<h1 id="popupHeader"></h1>
+				<button type="button" class="btn btn-secondary text-nowrap" id="optionsButton"></button>
+			</div>
+			<div class="list-group" id="streamsContainer">
+			</div>
+			<h2 id="errorsHeader"></h2>
+			<div class="list-group" id="errorsContainer"></div>
+		</div>
+	</body>
+	<template id="singleStreamTemplate">
+		<div class="list-group-item">
+			<div style="height:1.5em;">
+				<span class="accountIcon"></span>
+				<span class="title"></span>
+			</div>
+			<div style="overflow-x: hidden;">
+				<div class="desc d-inline-block"></div>
+			</div>
+		</div>
+	</template>
+	<template id="streamingTemplate">
+		<div class="list-group-item d-flex btn-group" role="group">
+			<button type="button" class="btn" data-bs-toggle="dropdown" aria-expanded="false">
+				<div class="title" style="text-align: left;"></div>
+    			<div class="list-group streams"></div>
+			</button>
+			<button type="button" class="btn dropdown-toggle dropdown-toggle-split flex-grow-0" data-bs-toggle="dropdown" aria-expanded="false"></button>
+			<ul class="dropdown-menu w-100"></ul>
+		</div>
+	</template>
+	<template id="streamIconTemplate">
+		<button class="btn list-group-item">
+			<span class="accountIcon"></span>
+			<marquee class="desc"></marquee>
+		</button>
+	</template>
+	<template id="streamDropdownItemTemplate">
+		<li><a class="dropdown-item" target="_blank"></a></li>
+	</template>
+</html>

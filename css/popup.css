@@ -1,0 +1,72 @@
+*{
+	--glyphSize: 34px;
+	--iconSize: 1.5em;
+	--subIconSize: 0.9em;
+	--subIconOffset: -0.25em;
+}
+body{
+	white-space: nowrap;
+	max-width: 400px;
+}
+.container{
+	padding-top:10px;
+	padding-bottom:15px;
+}
+#popupHeader{
+	text-align: center;
+	flex-grow: 1;
+}
+#optionsButton{
+	padding-left: 1px; 
+	padding-right: 1px; 
+	width: var(--glyphSize); 
+	height: var(--glyphSize); 
+	margin: auto;
+}
+#optionsButton::before{
+	content: '⚙️';
+}
+.list-group-item{
+	padding: 0.5rem;
+	cursor: pointer;
+}
+.btn{
+	padding: revert;
+}
+.title{
+	max-width: calc(100% - var(--iconSize));
+	padding-left: 0.2em;	 
+	overflow: hidden;
+	text-overflow:ellipsis;
+	display: inline-block;
+}
+.accountIcon{
+	width: var(--iconSize);
+	height: var(--iconSize);
+	display: inline-block;
+	background-size: 100%;
+	position: relative;
+}
+.accountIcon::after{
+	content: "";
+	background-image: var(--url);
+	width: var(--subIconSize);
+	height: var(--subIconSize);
+	position: absolute;
+	bottom: var(--subIconOffset);
+	right: var(--subIconOffset);
+	background-size: 100%;
+}
+.desc{
+	font-weight: lighter;
+}
+@keyframes slide {
+	0% {transform: translatex(0%)}
+	100% {transform: translatex(-50%)}
+}
+[data-marquee], [data-marquee]::after{
+	animation: slide var(--duration) linear 1s infinite;
+}
+[data-marquee]::after{
+	content: attr(data-marquee);
+}

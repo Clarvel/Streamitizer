@@ -1,0 +1,185 @@
+<html>
+	<head>
+		<title>Picarto Notifier Options</title>
+		<link rel="stylesheet" type="text/css" href="../modules/bootstrap/bootstrap.min.css">
+		<script type="module" src="../modules/bootstrap/bootstrap.bundle.min.js"></script>
+		<script type="module" src="../js/UI/options.js"></script>
+		<!--link rel="stylesheet" type="text/css" href="../css/options.css"-->
+		<link rel="stylesheet" type="text/css" href="../css/bootstrapper.css">
+		<!--link rel="stylesheet" type="text/css" href="../css/symbols.css"-->
+	</head>
+	<body>
+		<style>
+			.accountIcon{
+				width: 2.4em;
+				height: 2.4em;
+			}
+			button{
+				width:fit-content;
+			}
+			/*.container{
+				padding-top: var(--bs-gutter-x,.75rem);
+				padding-bottom: var(--bs-gutter-x,.75rem);
+			}*/
+			select.form-select{
+				width: fit-content;
+			}
+			select[indeterminate]{
+				color: rgba(0,0,0,0); /*Hides option text while indeterminate*/
+			}
+			.container > *:not(:last-child){
+				margin-bottom: 0.5rem;
+			}
+			.list-group-item{
+				padding: 0.5rem;
+			}
+			.d-flex > *:not(:last-child){
+				margin-right: 0.5rem;
+			}
+			.list-group-item > *:last-child{
+				margin-bottom: 0%;
+			}
+			.btn{
+				padding: revert;
+			}
+			.modal-header, .modal-footer{
+				padding: 0.5rem;
+			}
+			.list-group:not(:empty) + .list-group-item {
+				border-top-left-radius: 0%;
+				border-top-right-radius: 0%;
+			}
+			.errors:not(:empty){
+				margin-top: 0.5rem;;
+			}
+		</style>
+		<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" id="modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modalTitle"></h5>
+					</div>
+					<div class="modal-body" id="modalBody"></div>
+					<div class="modal-footer">
+						<button type="button" id="modalClose" class="btn btn-secondary text-nowrap"></button>
+						<button type="button" id="modalAccept" class="btn btn-primary text-nowrap"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container" style="padding-top:10px;padding-bottom:15px;">
+			<h1 id="accountsHeader"></h1>
+			<div class="list-group" id="accountsContainer">
+				<select class="list-group-item list-group-item-action text-center form-select form-select-sm w-100" id="accountsAdd">
+					<option hidden selected></option>
+				</select>
+			</div>
+			<div class="d-flex justify-content-between">
+				<button type="button" class="btn btn-warning text-nowrap" id="accountsReset"></button>
+			</div>
+			<h1 id="optionsHeader"></h1>
+			<div class="list-group" id="optionsContainer"></div>
+			<div class="d-flex justify-content-between">
+				<button type="button" class="btn btn-warning text-nowrap" id="optionsReset"></button>
+				<button type="button" class="btn btn-danger text-nowrap" id="clearAllData"></button>
+			</div>
+		</div>
+	</body>
+	<template id="accountTemplate">
+		<div class="list-group-item">
+			<div class="d-flex justify-content-between">
+				<a target="_blank">
+					<img class="accountIcon"/>
+				</a>
+				<div class="flex-grow-1">
+					<!--div class="d-flex justify-content-between"-->
+						<label class="serviceName text-nowrap"></label>
+					<!--/div-->
+					<div class="d-flex justify-content-start">
+						<button class="btn btn-primary text-nowrap"></button>
+						<button class="btn btn-secondary text-nowrap"></button>
+						<button class="btn btn-warning text-nowrap"></button>
+					</div>
+				</div>
+			</div>
+			<div class="errors list-group"></div>
+		</div>
+	</template>
+	<template id="errorTemplate">
+		<div class="list-group-item d-flex justify-content-between">
+			<span class="count"></span>
+			<span class="desc flex-grow-1"></span>
+			<button class="remove btn btn-close"></button>
+		</div>
+	</template>
+	<template id="selectTemplate">
+		<div class="list-group-item d-flex justify-content-between">
+			<label></label>
+			<select class="form-select form-select-sm" indeterminate disabled>
+			</select>
+		</div>
+	</template>
+	<template id="boolTemplate">
+		<div class="list-group-item d-flex justify-content-between">
+			<label></label>
+			<input type="checkbox" class="form-check-input" indeterminate disabled />
+		</div>
+	</template>
+	<template id="accountEditTemplate">
+		<div class="list-group" id="accountEditOptions"></div>
+		<p class="description m-0"></p>
+	</template>
+	<template id="rangeTemplate">
+		<div class="list-group-item d-flex justify-content-between">
+			<label></label>
+			<output></output>
+			<input type="range" class="form-range" indeterminate disabled />
+		</div>
+	</template>
+
+	<!--body>
+		<div class="modal closeModal">
+			<div class="modalContent">
+				<div class="modalBody"></div>
+				<div class="modalFooter">
+					<button id="closeModal" class="closeModal"></button>
+					<button id="acceptModal" class="hideEmpty"></button>
+				</div>
+			</div>
+		</div>
+		<div id="welcomeText"></div>
+		<div id="accountsContainer" class="padBottom wrappingContainer"></div>
+		<button id="resetAccounts"></button><span class="icon loading hide"></span>
+		<form id="optionsContainer" class="form-check form-switch padBottom"></form>
+		<button id="resetOptions"></button><span class="icon loading hide"></span>
+	</body>
+	<template id="accountTemplate">
+		<div class="row account">
+			<a target="_blank">
+				<img class="streamIcon"/>
+			</a>
+			<div class="col">
+				<label class="serviceName"></label>
+				<button></button>
+			</div>
+			<div class="col">
+				<span class="icon loading hide"></span>
+				<p></p>
+			</div>
+		</div>
+	</template>
+	<template id="selectTemplate">
+		<div class="row">
+			<label></label>
+			<select class="form-select" indeterminate disabled>
+				<option hidden selected></option>
+			</select>
+		</div>
+	</template>
+	<template id="boolTemplate">
+		<div class="row">
+			<label></label>
+			<input type="checkbox" class="form-check-input" indeterminate disabled />
+		</div>
+	</template-->
+</html>

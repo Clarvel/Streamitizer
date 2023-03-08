@@ -1,0 +1,40 @@
+{
+	"name": "Streamitizer",
+	"version": "0.0.1",
+	"manifest_version": 3,
+	"default_locale":"en",
+	"permissions": [
+		"alarms",
+		"storage",
+		"identity",
+		"idle",
+		"notifications",
+		"cookies",
+		"tabs"
+	],
+	"optional_permissions":[],
+	"host_permissions":[
+		"*://*.piczel.tv/",
+		"*://*.youtube.com/"
+	],
+	"description": "An extension that tracks who's streaming across multiple sites",
+	"options_ui": {
+		"page": "html/options.html",
+		"open_in_tab": false
+	},
+	"icons": {
+        "128":"icons/icon.png"
+	},
+	"background":{
+		"service_worker":"background.js",
+		"type":"module"
+	},
+	"action":{
+		"default_icon":{
+			"128":"icons/icon.png"
+		},
+		"default_popup":"html/popup.html",
+		"default_area":"navbar"
+	},
+	"key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4JYDllSb1ToIjpefLgl5iA2RIQ09X2IyfOFHq5X3/pfuKQwy/DxD3Y3AHVu/nWfWF2vynO5tMoKuoobXppwml/rpRLUkRdWjyBkbW+kMEWomaf46MoLyNngrbqUuSJ5geNUH8fr+EBDgxb2D7/dGsg/IdmrHSGqEFmjcTphXKcINZMtzjjm0y2KOaj+ibFGryREh8ECb4IeXvLXV29le1hxKDYo16EJR8/s7CzQwsvNl0fNsUZdoimU4QFCbLgV1OP5Q7I9pH3gTA0kygLxGnVaTkAeA25GeoqAFRQfA8oN2Eb3YTOyaGSpQr9TKLxCu1DfJ8PYcP+Es5E4crRjuDwIDAQAB"
+}

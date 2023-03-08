@@ -1,0 +1,131 @@
+*{
+	--bodyPadding:15px;
+	--bodyWidth:280px;
+	--unitHeight:32px;
+	--streamIconSize:48px;
+	--spacerSize:5px;
+	--marginSize:2px;
+	--iconSize:1em;
+
+	box-sizing: border-box;
+}
+body {
+	transition: all ease .3s;
+}
+/*.disabled{
+	opacity: 0.5;
+	pointer-events: none;
+}*/
+.padBottom{
+	margin-bottom: 1em;
+}
+.padTop{
+	margin-top: 1em;
+}
+.row{
+	display: flex;
+	align-items: center;
+}
+.col{
+	display: flex;
+	flex-direction: column;
+}
+label{
+	flex-grow: 1;
+	/*word-break: break-word;*/
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+	white-space: nowrap;
+}
+.hideEmpty:empty{
+	display: none;
+}
+
+/*@keyframes rotate {
+	from{
+		transform: rotateZ(0deg);
+	}
+  	to{
+    	transform: rotateZ(359deg);
+  	}
+}
+.loading{
+	animation-name: rotate;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+}*/
+.hide{
+	display: none;
+}
+.icon{
+	height: var(--iconSize);
+	width: var(--iconSize);
+}
+.streamIcon{
+	height: var(--streamIconSize);
+	width: var(--streamIconSize);
+}
+.avatar, .icon, .message, button{
+	margin: var(--marginSize);
+}
+button{
+	width: fit-content;
+}
+.wrappingContainer{
+	display: flex;
+	flex-wrap: wrap;
+}
+.account{
+	width: 100%;
+	flex-shrink: 0;
+	margin: 0.5em;
+}
+.account .serviceName{
+	text-overflow: ellipsis;
+    overflow-x: hidden;
+    white-space: nowrap;
+    max-width: calc(calc(192px - var(--iconSize)) - calc(4 * var(--marginSize)));
+	text-align: center;
+	font-weight: bold;
+}
+p{
+	height: 100%;
+	margin: var(--marginSize);
+}
+.modal{
+	display: none;
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modalContent{
+	position: relative;
+	margin: 20% auto 0;
+	padding: 0;
+	border: 1px solid #888;
+	background-color: white;
+	margin-top: 20%;
+	width: 80%;
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+	animation-name: animateModal;
+	animation-duration: 0.4s
+}
+.modalBody{
+	padding: 0.5em;
+	white-space: pre-wrap;
+}
+.modalFooter{
+	padding: 0.5em;
+	align-content: space-around;
+}
+/* Add Animation */
+@keyframes animateModal {
+	from {top:-300px; opacity:0}
+	to {top:0; opacity:1}
+}

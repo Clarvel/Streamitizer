@@ -1,0 +1,34 @@
+{
+	"updateInterval":{
+		"value":600000,
+		"options":[
+			  60000,
+			 300000,
+			 600000,
+			 900000,
+			1800000,
+			3600000
+		]
+	},
+	"descSpeed":{
+		"value":50,
+		"min":0,
+		"max":200
+	},
+	"notifications":{
+		"value":true,
+		"disabled":true
+	},
+	"theme":{
+		"value":"System",
+		"options":[
+			"System",
+			"Light",
+			"Dark"
+		]
+	},
+	"mergeSameName":{
+		"value":true,
+		"disabled":true
+	}
+}
