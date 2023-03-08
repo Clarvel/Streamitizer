@@ -23,7 +23,7 @@ export class Twitch extends GenericStreamClient{
 	async _GetActiveStreams(authentication){
 		const opts = Twitch._Opts(authentication)
 		const api = await this._Settings.Get(STREAMS_API_KEY)
-		const streams = (await WebRequest.GET(EncodeDataURL(api, {"user_id": "401047889"}), opts))["data"]
+		const streams = (await WebRequest.GET(api, opts))["data"]
 
 		// TODO: the maximum I can ask for is 100 per call
 		const result = (await WebRequest.GET((await this._Settings.Get(ACCOUNT_API_KEY)) + "?" + streams.map(s=>`id=${s["user_id"]}`).join('&'), opts))["data"]
