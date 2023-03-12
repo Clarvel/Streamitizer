@@ -3,6 +3,7 @@ import { GenericStreamClient } from "./GenericStreamClient.js"
 import { ConsolidatePaginated, EncodeDataURL, PromiseAll } from "../utils.js"
 import { WebRequest } from "../webRequest.js"
 import { FormatString, GetValueFromNestedObject } from "../utils.js"
+import { Settings } from "../settings.js"
 
 const ACCOUNT_API_KEY = "AccountAPI"
 const STREAMS_API_KEY = "StreamsAPI"
@@ -17,12 +18,14 @@ export class Twitch extends GenericStreamClient{
 	}
 
 	async _GetUsername(authentication){
-		return (await WebRequest.GET(await this._Settings.Get(ACCOUNT_API_KEY), Twitch._Opts(authentication)))["data"][0]["display_name"] // or "login"
+		var userData = (await WebRequest.GET(await this._Settings.Get(ACCOUNT_API_KEY), Twitch._Opts(authentication)))["data"][0]
+		await this._Settings.Set("TID", userData["id"])
+		return userData["display_name"] // or "login"
 	}
 
 	async _GetActiveStreams(authentication){
 		const opts = Twitch._Opts(authentication)
-		const api = await this._Settings.Get(STREAMS_API_KEY)
+		const api = (await this._Settings.Get(STREAMS_API_KEY)) + "?user_id=" + await this._Settings.Get("TID")
 		const streams = (await WebRequest.GET(api, opts))["data"]
 
 		// TODO: the maximum I can ask for is 100 per call

@@ -7,8 +7,9 @@ const AUTH_KEY = "AUTH_KEY"
 const ERR_KEY = "ERR_KEY"
 const USERNAME_KEY = "USER_KEY"
 const ACTIVE_STREAMS_KEY = "ACTIVE_STREAMS"
+const USER_ID = "TID" // for twitch
 
-const KEYS = [AUTH_KEY, ERR_KEY, USERNAME_KEY, ACTIVE_STREAMS_KEY]
+const KEYS = [AUTH_KEY, ERR_KEY, USERNAME_KEY, ACTIVE_STREAMS_KEY, USER_ID]
 
 export class StreamInfo {
 	/**
