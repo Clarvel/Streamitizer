@@ -15,6 +15,7 @@ body{
 #popupHeader{
 	text-align: center;
 	flex-grow: 1;
+	margin-right: 0.5rem;
 }
 #optionsButton{
 	padding-left: 1px; 
