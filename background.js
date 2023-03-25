@@ -1,3 +1,4 @@
+import "./js/keepAlive.js"
 import { Browser } from "./js/browser.js"
 import { Settings } from "./js/settings.js"
 import { Config } from "./js/Config.js"
