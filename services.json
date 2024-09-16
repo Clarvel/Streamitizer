@@ -1,50 +1,24 @@
 {
 	"picarto":{
+		"Site": "https://picarto.tv",
 		"ClientID": "68cb4df3-ea56-4168-a402-f366fa3cdef9",
 		"AuthenticationAPI": "https://oauth.picarto.tv/authorize",
 		"TokenAPI": "https://oauth.picarto.tv/token",
-		"Scopes": ["readpriv", "readpub"],
-		"AccountAPI": "https://api.picarto.tv/api/v1/user",
-		"FollowingAPI": "https://api.picarto.tv/api/v1/user/following",
-		"SubscriptionsAPI": "https://api.picarto.tv/api/v1/user/subscriptions",
-		"WatchURL": "https://picarto.tv/{0}",
-		"Site": "https://picarto.tv",
-		"Options":{}
+		"Scopes": ["readpriv", "readpub"]
 	},
 	"piczel":{
 		"Site": "https://piczel.tv",
 		"CookieDomain": "https://piczel.tv/",
-		"CookieName": "authHeaders",
-		"AccountAPI": "https://piczel.tv/api/users/me",
-		"AccountNamePath": ["username"],
-		"StreamsAPI": "https://piczel.tv/api/streams",
-		"WatchURL":"https://piczel.tv/watch/{0}",
-		"Options":{
-			"showNSFW":{"value":false}
-		}
+		"CookieName": "authHeaders"
 	},
 	"twitch":{
 		"Site": "https://twitch.tv",
-		"WatchURL": "https://twitch.tv/{0}",
 		"ClientID": "eq1wpnbv4jmkq48g9v1bsepfvoh4ou",
-		"TokenAPI": "",
 		"AuthenticationAPI": "https://id.twitch.tv/oauth2/authorize",
-		"AccountAPI": "https://api.twitch.tv/helix/users",
-		"UserAPI": "https://api.twitch.tv/helix/users/?",
-		"AccountNamePath":["data", 0, "display_name"],
-		"StreamsAPI":"https://api.twitch.tv/helix/streams/followed",
 		"Scopes": ["user:read:follows"],
 		"PKCE":false
 	},
 	"youtube":{
-		"Site": "https://youtube.com",
-		"ClientID": "463633408812-06gm6hp78drr5djcdee1j5s0r7t5j0bp.apps.googleusercontent.com",
-		"TokenAPI": "",
-		"AuthenticationAPI": "https://accounts.google.com/o/oauth2/v2/auth",
-		"AccountAPI": "https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.channels.list?part=snippet,contentDetails,brandingSettings&mine=true",
-		"AccountNamePath": [],
-		"StreamsAPI": "https://developers.google.com/apis-explorer/#p/youtube/v3/youtube.subscriptions.list?part=snippet,contentDetails&mine=true",
-		"Scopes": ["https://www.googleapis.com/auth/youtube.readonly"],
-		"Disabled":true
+		"Site": "https://youtube.com"
 	}
 }

@@ -1,73 +1,43 @@
-import { RemoveChildren, SetElemOrString, IsStr, GetI18nText, PromiseAll } from "../utils.js"
+import { SetElemOrString, GetI18nText, PromiseAll } from "../utils.js"
 
-export class ModalHTMLController{
-    constructor(elemID, titleID, bodyID, primaryButtonID, secondaryButtonID, errTitleKey, errButtonKey){
-        this._errTitleKey = errTitleKey
-        this._errButtonKey = errButtonKey
-        this._baseElem = document.getElementById(elemID)
-        this._bootstrapModal = bootstrap.Modal.getOrCreateInstance(this._baseElem)
-        this._title = document.getElementById(titleID)
-        this._body = document.getElementById(bodyID)
-        this._primaryButton = document.getElementById(primaryButtonID)
-        this._secondaryButton = document.getElementById(secondaryButtonID)
+const BASE_ELEM = document.getElementById("modal")
+const BOOTSTRAP = bootstrap.Modal.getOrCreateInstance(BASE_ELEM)
+const TITLE_ELEM = document.getElementById("modalTitle")
+const BODY_ELEM = document.getElementById("modalBody")
+const PRIMARY_BUTTON = document.getElementById("modalAccept")
+const SECONDARY_BUTTON = document.getElementById("modalClose")
 
-        this._primaryButton.addEventListener("click", async (e)=>{await this._ModalCallback(e, true)})
-	    this._secondaryButton.addEventListener("click", async (e)=>{await this._ModalCallback(e, false)})
+let CALLBACK = null
 
-        this._callback = null
-        this._style = null
-    }
-
-    async _ModalCallback(evt, wasAccepted){
-        if(this._callback != null){
-            this._primaryButton.setAttribute("disabled", "")
-            this._secondaryButton.setAttribute("disabled", "")
-            try{
-                await this._callback(evt, wasAccepted)
-            }catch(e){
-                console.warn(e)
-                this._baseElem.addEventListener("hidden.bs.modal", ()=>{ // wait for modal to fade
-                    const [title, body, primaryButton, secondaryButton] = [this._title, this._body, this._primaryButton, this._secondaryButton].map(e=>{
-                        const frag = new DocumentFragment()
-                        frag.append(...RemoveChildren(e))
-                        return frag
-                    })
-                    const style = this._style
-                    const cb = this._callback
-                    
-                    this.DisplayErrorModal(e.message, ()=>{
-                        this._baseElem.addEventListener("hidden.bs.modal", ()=>{ // wait for error modal to fade
-                            this.DisplayModal({
-                                title:title,
-                                contents:body,
-                                primaryButton:primaryButton,
-                                secondaryButton:secondaryButton,
-                                callback:cb,
-                                style:style
-                            })
-                        }, {once:true})
-                    })
-                }, {once:true})
-            }
+async function ModalCallback(evt, wasAccepted){
+    if(CALLBACK){
+        PRIMARY_BUTTON.setAttribute("disabled", "")
+        SECONDARY_BUTTON.setAttribute("disabled", "")
+        try{
+            await CALLBACK(evt, wasAccepted)
+        }catch(e){
+            console.warn(e)
+            BASE_ELEM.addEventListener("hidden.bs.modal", () => DisplayErrorModal(e.message), {once:true}) // wait for modal to fade
         }
-        this._bootstrapModal.hide()
-        //this._callback = null
     }
-    
-    DisplayErrorModal(message, callback=null){return this.DisplayModal({title:this._errTitleKey, primaryButton:this._errButtonKey, contents:message, callback:callback, style:"err"})}
-    
-    async DisplayModal({title=null, contents=null, primaryButton=null, secondaryButton=null, callback=null, style=null}){
-        this._callback = callback
-        this._style = style
-        this._primaryButton.removeAttribute("disabled")
-        this._secondaryButton.removeAttribute("disabled")
-
-        await PromiseAll([[this._title, title], [this._body, contents], [this._primaryButton, primaryButton], [this._secondaryButton, secondaryButton]].map(async ([elem, promise])=>{
-            const content = await ((IsStr(promise) && promise.charAt(2) === '_') ? GetI18nText(promise) ?? promise : promise)
-            elem.style.display = content == null ? "none" : null
-            SetElemOrString(elem, content ?? "")
-        }))
-
-        this._bootstrapModal.show()
-    }
+    BOOTSTRAP.hide()
 }
+
+export async function DisplayModal(title, primaryButton, message=null, secondaryButton=null, callback=null){
+    CALLBACK = callback
+    PRIMARY_BUTTON.removeAttribute("disabled")
+    SECONDARY_BUTTON.removeAttribute("disabled")
+
+    await PromiseAll([[TITLE_ELEM, title], [BODY_ELEM, message], [PRIMARY_BUTTON, primaryButton], [SECONDARY_BUTTON, secondaryButton]].map(async ([elem, promise])=>{
+        const content = await promise
+        elem.style.display = content ? null : "none"
+        SetElemOrString(elem, content ?? "")
+    }))
+
+    BOOTSTRAP.show()
+}
+
+export const DisplayErrorModal = async (message, callback=null) => DisplayModal(GetI18nText("error"), GetI18nText("ok"), message, null, callback)
+
+PRIMARY_BUTTON.addEventListener("click", async (e)=>{await ModalCallback(e, true)})
+SECONDARY_BUTTON.addEventListener("click", async (e)=>{await ModalCallback(e, false)})

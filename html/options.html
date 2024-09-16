@@ -5,9 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="../modules/bootstrap/bootstrap.min.css">
 		<script type="module" src="../modules/bootstrap/bootstrap.bundle.min.js"></script>
 		<script type="module" src="../js/UI/options.js"></script>
-		<!--link rel="stylesheet" type="text/css" href="../css/options.css"-->
 		<link rel="stylesheet" type="text/css" href="../css/bootstrapper.css">
-		<!--link rel="stylesheet" type="text/css" href="../css/symbols.css"-->
 	</head>
 	<body>
 		<style>
@@ -18,10 +16,6 @@
 			button{
 				width:fit-content;
 			}
-			/*.container{
-				padding-top: var(--bs-gutter-x,.75rem);
-				padding-bottom: var(--bs-gutter-x,.75rem);
-			}*/
 			select.form-select{
 				width: fit-content;
 			}
@@ -53,6 +47,9 @@
 			.errors:not(:empty){
 				margin-top: 0.5rem;;
 			}
+			.form-range{
+				width: unset;
+			}
 		</style>
 		<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" id="modal">
 			<div class="modal-dialog">
@@ -69,118 +66,74 @@
 			</div>
 		</div>
 		<div class="container" style="padding-top:10px;padding-bottom:15px;">
-			<h1 id="accountsHeader"></h1>
-			<div class="list-group" id="accountsContainer">
+			<h2 id="accountsHeader"></h2>
+			<ul class="list-group" id="accountsContainer">
 				<select class="list-group-item list-group-item-action text-center form-select form-select-sm w-100" id="accountsAdd">
 					<option hidden selected></option>
 				</select>
-			</div>
+			</ul>
 			<div class="d-flex justify-content-between">
 				<button type="button" class="btn btn-warning text-nowrap" id="accountsReset"></button>
 			</div>
-			<h1 id="optionsHeader"></h1>
-			<div class="list-group" id="optionsContainer"></div>
+			<h2 id="optionsHeader"></h2>
+			<ul class="list-group" id="optionsContainer"></ul>
 			<div class="d-flex justify-content-between">
 				<button type="button" class="btn btn-warning text-nowrap" id="optionsReset"></button>
 				<button type="button" class="btn btn-danger text-nowrap" id="clearAllData"></button>
 			</div>
 		</div>
 	</body>
-	<template id="accountTemplate">
-		<div class="list-group-item">
-			<div class="d-flex justify-content-between">
-				<a target="_blank">
-					<img class="accountIcon"/>
-				</a>
-				<div class="flex-grow-1">
-					<!--div class="d-flex justify-content-between"-->
-						<label class="serviceName text-nowrap"></label>
-					<!--/div-->
-					<div class="d-flex justify-content-start">
-						<button class="btn btn-primary text-nowrap"></button>
-						<button class="btn btn-secondary text-nowrap"></button>
-						<button class="btn btn-warning text-nowrap"></button>
-					</div>
+	<template id="streamTypeTemplate">
+		<li class="list-group-item p-2">
+			<div class="col">
+				<div class="d-flex align-items-center mb-2">
+					<a target="_blank">
+						<img class="accountIcon"/>
+					</a>
+					<h3 class="text-truncate mb-0"></h3>
 				</div>
+				<ul class="list-group"></ul>
 			</div>
-			<div class="errors list-group"></div>
-		</div>
+		</li>
+	</template>
+	<template id="accountTemplate">
+		<li class="list-group-item">
+			<div class="d-flex align-items-center">
+				<label class="text-truncate me-auto h4 mb-0"></label>
+				<button class="btn btn-close ms-2" type="button" aria-label="Remove"></button>
+			</div>
+			<ul class="errors d-none" style="padding-left: unset;"></ul>
+			<!--div name="errs" class="d-flex align-items-baseline ms-2 d-none">
+				<label class="text-danger"></label>
+				<button class="btn btn-outline-danger btn-sm ms-2" aria-label="Reconnect"></button>
+			</div-->
+		</li>
 	</template>
 	<template id="errorTemplate">
-		<div class="list-group-item d-flex justify-content-between">
+		<li class="list-group-item d-flex justify-content-between">
 			<span class="count"></span>
 			<span class="desc flex-grow-1"></span>
 			<button class="remove btn btn-close"></button>
-		</div>
+		</li>
 	</template>
 	<template id="selectTemplate">
-		<div class="list-group-item d-flex justify-content-between">
+		<li class="list-group-item d-flex justify-content-between">
 			<label></label>
 			<select class="form-select form-select-sm" indeterminate disabled>
 			</select>
-		</div>
+		</li>
 	</template>
 	<template id="boolTemplate">
-		<div class="list-group-item d-flex justify-content-between">
+		<li class="list-group-item d-flex justify-content-between">
 			<label></label>
 			<input type="checkbox" class="form-check-input" indeterminate disabled />
-		</div>
-	</template>
-	<template id="accountEditTemplate">
-		<div class="list-group" id="accountEditOptions"></div>
-		<p class="description m-0"></p>
+		</li>
 	</template>
 	<template id="rangeTemplate">
-		<div class="list-group-item d-flex justify-content-between">
+		<li class="list-group-item d-flex justify-content-between">
 			<label></label>
-			<output></output>
+			<input type="number" indeterminate disabled style="width: 3em;height: fit-content;"/>
 			<input type="range" class="form-range" indeterminate disabled />
-		</div>
+		</li>
 	</template>
-
-	<!--body>
-		<div class="modal closeModal">
-			<div class="modalContent">
-				<div class="modalBody"></div>
-				<div class="modalFooter">
-					<button id="closeModal" class="closeModal"></button>
-					<button id="acceptModal" class="hideEmpty"></button>
-				</div>
-			</div>
-		</div>
-		<div id="welcomeText"></div>
-		<div id="accountsContainer" class="padBottom wrappingContainer"></div>
-		<button id="resetAccounts"></button><span class="icon loading hide"></span>
-		<form id="optionsContainer" class="form-check form-switch padBottom"></form>
-		<button id="resetOptions"></button><span class="icon loading hide"></span>
-	</body>
-	<template id="accountTemplate">
-		<div class="row account">
-			<a target="_blank">
-				<img class="streamIcon"/>
-			</a>
-			<div class="col">
-				<label class="serviceName"></label>
-				<button></button>
-			</div>
-			<div class="col">
-				<span class="icon loading hide"></span>
-				<p></p>
-			</div>
-		</div>
-	</template>
-	<template id="selectTemplate">
-		<div class="row">
-			<label></label>
-			<select class="form-select" indeterminate disabled>
-				<option hidden selected></option>
-			</select>
-		</div>
-	</template>
-	<template id="boolTemplate">
-		<div class="row">
-			<label></label>
-			<input type="checkbox" class="form-check-input" indeterminate disabled />
-		</div>
-	</template-->
 </html>

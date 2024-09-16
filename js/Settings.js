@@ -1,118 +1,65 @@
 import { Browser } from "./browser.js"
-import { Config } from "./config.js"
-import { ObjFilter } from "./utils.js"
+import { DEFAULT } from "./IDs.js"
+import { Copy } from "./utils.js"
+
+export class Config{
+	/**
+	 * @param {string} configPath
+	 * @returns {Promise<Object.<string, string>>} config dictionary
+	 */
+	static Fetch = async configPath => await (await fetch(configPath)).json()
+}
 
 export class Settings{
-	/**
-	 * @param {string} storageID
-	 * @param {Object<string, *>} defaultConfig if the 'value' object has a 'value' key, a default Get request will return that, otherwise returns the object
-	 * @param {Array<string>} additionalKeys generic empty keys to config that can still be saved to and fetched from
-	 */
-	constructor(storageID, defaultConfig, additionalKeys=[]){
-		this._storageID = storageID
-		this._config = defaultConfig
-		for (const key of additionalKeys) {if(!(key in this._config))this._config[key]=null}
+    async Get(keys){
+        const stored = await Browser.GetStorage(keys)
+        return keys.map(k => stored[k])
+    }
+    
+    async GetSingle(key){return this.Get([key]).then(r => r[0])}
 
-		//Browser.GetStorage().then((s)=>console.log(this._storageID, this._config, s))
-	}
+    async _Get(keys){
+        const stored = await Browser.GetStorage(keys)
+        return keys.map(k => [k, stored[k]])
+    }
+    Set = (key, value) => Browser.SetStorage({[key]:value})
+    Del(keys){return Browser.RemoveStorage(keys)} // accepts single string or an array of strings
+    async Modify(key, func){await this.Set(key, await func(await this.GetSingle(key)))}
 
-	/**
-	 * This helper function can be skipped if you know your storageID and defaultConfig
-	 * @param {string} storageID 
-	 * @param {string} configPath 
-	 * @param {Array<string>} additionalKeys
-	 */
-	static async Create(storageID=undefined, configPath=undefined, additionalKeys=[]){
-		if(storageID == null && configPath == null){ // set to default global settings if both are not present
-			storageID = "Settings"
-			configPath = "../options.json"
-		}
-		if(storageID != null && configPath != null)
-			return new Settings(storageID, await Config.Fetch(configPath), additionalKeys)
-		throw Error(`Could not create Settings object; missing ${storageID == null ? "storageID" : "configPath"}!`)
-	}
+    // func will be invoked with an array of key, value pairs. value can be null
+	OnUpdate(func){Browser.OnStorageStateChanged(changes => func(Object.entries(changes).map(([k, v], i) => [k, v["newValue"]])))} // TODO: is this used outside MetadataSettings?
+}
 
-	Keys(){return Object.keys(this._config)}
+export class MetadataSettings extends Settings{
+    _Metadata = null
+    constructor(configPath){
+        super()
+        this._Metadata = Config.Fetch(configPath)
+    }
 
-	/**
-	 * @param {string} key 
-	 */
-	IsValid(key){
-		//console.log(key, this.Keys())
-		return this.Keys().includes(key)
-	}
+    async Get(keys){
+        const [metadata, stored] = await Promise.all([this._Metadata, super._Get(keys)])
+        //console.log(keys, metadata, stored)
+        return stored.map(([k, v]) => v ?? metadata[k]?.[DEFAULT] ?? null) // can still have value = null
+    }
 
-	/**
-	 * @param {string} key 
-	 */
-	_EnsureKeyIsValid(key){
-		if(!this.IsValid(key))
-			throw Error(`Key [${key}] is invalid for storage in [${this._storageID}] store.`)
-		return true
-	}
+    async GetSingle(key){return this.Get([key]).then(r => r[0])} // todo: do I need to redefine this in Settings?
 
-	/**
-	 * @param {string} key 
-	 */
-	_CreateKey(key){return this._storageID+key}
+    // returns an array of [key, object], where object.value is defined from storage, or the default
+    async GetMetadata(){
+        const metadata = Copy(await this._Metadata)
+        const kvps = await super._Get(Object.keys(metadata))
+        kvps.filter(([k, v]) => v != null).forEach(([k, v]) => metadata[k][DEFAULT] = v)
+        return Object.entries(metadata)
+    }
 
-	/**
-	 * @param {string} key if empty, resets ALL keys
-	 */
-	async Reset(key=null){
-		let keys = key == null ? this.Keys() : [this._EnsureKeyIsValid(key) ? key : undefined]
-		console.log(`Resetting ALL Settings for [${this._storageID}] ID on keys: `, keys)
-		await Browser.RemoveStorage(keys.map(k=>this._CreateKey(k)))
-	}
+    async Reset(keys=null){return super.Del(keys ?? Object.keys(await this._Metadata))}
 
-	/**
-	 * @param {string} key 
-	 */
-	async Set(key, value){
-		this._EnsureKeyIsValid(key)
-		await Browser.SetStorage({[this._CreateKey(key)]:value})
-	}
-
-	_GetDefault(key){
-		const val = this._config[key]
-		return (val != null && typeof val === 'object' && "value" in val) ? val["value"] : val
-	}
-
-	/**
-	 * @param {string} key 
-	 */
-	async Get(key){
-		this._EnsureKeyIsValid(key)
-		let k = this._CreateKey(key)
-		return (await Browser.GetStorage(k))?.[k] ?? this._GetDefault(key)
-	}
-
-	/**
-	 * @param {string} key 
-	 */
-	GetMetadata(key){
-		this._EnsureKeyIsValid(key)
-		return this._config[key]
-	}
-
-	/**
-	 * @param {Function} func 
-	 */
-	OnUpdate(func){
-		return Browser.OnStorageStateChanged((changes)=>{
-			var updates = {}
-			Object.entries(changes).map(([k, v], i)=>{
-				if(k.startsWith(this._storageID)){
-					const key = k.slice(this._storageID.length)
-					if(this.IsValid(key)){
-						updates[key] = v["newValue"] ?? this._GetDefault(key) // only provide newvalue, or default if the update is a reset
-					}
-				}
-			})
-			if(Object.keys(updates).length !== 0){
-				//console.log(updates, changes)
-				return func(updates)
-			}
-		})
-	}
+    OnUpdate(func){
+        super.OnUpdate(async kvps => {
+            const metadata = await this._Metadata
+            console.debug(kvps, metadata)
+            func(kvps.map(([k, v]) => [k, v ?? metadata[k]?.[DEFAULT]]))
+        })
+    }
 }

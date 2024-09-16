@@ -23,18 +23,18 @@ export class WebRequest{
 		if(headers != null)
 			requestOptions["headers"] = headers
 
-		let response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions).catch(console.log)
+		let response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions)
 
 		if(!response?.ok){
 			throw Error(`Network request failed with status ${response.status} ${response.statusText}: [${await response.text().catch()}]`, {cause:response.status})
 		}
-		console.log(uri, responseClass, method, query, body, headers)
+		console.debug(uri, responseClass, method, query, body, headers)
 
 		if(typeof responseClass === 'string')
-			return await response.text()
+			return response.text()
 			
 		const json = await response.json()
-		console.log(json)
+		console.debug(json)
 		return responseClass != null ? new responseClass(json) : json
 	}
 
@@ -44,9 +44,8 @@ export class WebRequest{
 	 * @returns {Promise<T>}
 	 * @template T 
 	 */
-	static POST(uri, options=undefined){
-		return WebRequest.Fetch(uri, "POST", options)
-	}
+	static POST = (uri, options=undefined) => WebRequest.Fetch(uri, "POST", options)
+	
 	/**
 	 * @param {string} uri 
 	 * @param {WebRequestOptions} options 

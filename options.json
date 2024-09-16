@@ -11,24 +11,19 @@
 		]
 	},
 	"descSpeed":{
-		"value":50,
+		"value":100,
 		"min":0,
 		"max":200
 	},
 	"notifications":{
-		"value":true,
-		"disabled":true
+		"value":true
 	},
 	"theme":{
-		"value":"System",
+		"value":"system",
 		"options":[
-			"System",
-			"Light",
-			"Dark"
+			"system",
+			"light",
+			"dark"
 		]
-	},
-	"mergeSameName":{
-		"value":true,
-		"disabled":true
 	}
 }

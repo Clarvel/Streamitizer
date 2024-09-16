@@ -1,5 +1,5 @@
 {
-	"name": "Streamitizer",
+	"name": "StreamWatcher",
 	"version": "1.0.1",
 	"manifest_version": 3,
 	"default_locale":"en",
@@ -36,6 +36,5 @@
 		},
 		"default_popup":"html/popup.html",
 		"default_area":"navbar"
-	},
-	"key":"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4JYDllSb1ToIjpefLgl5iA2RIQ09X2IyfOFHq5X3/pfuKQwy/DxD3Y3AHVu/nWfWF2vynO5tMoKuoobXppwml/rpRLUkRdWjyBkbW+kMEWomaf46MoLyNngrbqUuSJ5geNUH8fr+EBDgxb2D7/dGsg/IdmrHSGqEFmjcTphXKcINZMtzjjm0y2KOaj+ibFGryREh8ECb4IeXvLXV29le1hxKDYo16EJR8/s7CzQwsvNl0fNsUZdoimU4QFCbLgV1OP5Q7I9pH3gTA0kygLxGnVaTkAeA25GeoqAFRQfA8oN2Eb3YTOyaGSpQr9TKLxCu1DfJ8PYcP+Es5E4crRjuDwIDAQAB"
+	}
 }

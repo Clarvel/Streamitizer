@@ -6,10 +6,11 @@
 * display to user
 
 ## TODO: Known Issues
-* load options container function is messy
-* there's a race condition in making new accounts, with the empty options data causing an issue with the metadata reference IDs
-* remove options from 'add account' modal? If yes, we can move account creation code to 'accept' callback
-* the number in the icon doesn't update properly, its always *last* count
+* notifications missing
+* twitch and picarto require old app perms
+* get proper firefox key?
+
+options can be diabled by adding `"disabled":true` to the relevant section of `options.json`
 
 
 ## Streaming Sites

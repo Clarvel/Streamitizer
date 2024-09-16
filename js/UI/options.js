@@ -1,51 +1,33 @@
-import { StreamClientController } from "../streamingService.js"
+import { PROVIDER_TYPES, StreamsService } from "../streamsService.js"
 import { Browser } from "../browser.js"
-import { LoadI18nTextToElem, GetI18nText, SetElemValue, GetElemValue, GetSelectOption } from "../utils.js"
-import { Settings } from "../settings.js"
-import { ModalHTMLController } from "./ModalHTMLController.js"
+import { LoadI18nTextToElem, SetElemValue, GetElemValue, GetSelectOption, Clamp, GetI18nText } from "../utils.js"
+import { Settings, MetadataSettings } from "../settings.js"
+import { DisplayErrorModal, DisplayModal } from "./ModalHTMLController.js"
+import { CLIENTS_KEY, DEFAULT, THEME } from "../IDs.js"
 
-const THEME = "theme"
-
+const OPTIONS_CONTAINER = document.getElementById("optionsContainer")
 const ACCOUNTS_CONTAINER = document.getElementById("accountsContainer")
 const ACCOUNTS_ADD_BUTTON = document.getElementById("accountsAdd")
 const ACCOUNTS_RESET_BUTTON = document.getElementById("accountsReset")
 const OPTIONS_RESET_BUTTON = document.getElementById("optionsReset")
 const CLEAR_ALL_DATA_BUTTON = document.getElementById("clearAllData")
 
+const STREAMTYPE_TEMPLATE = document.getElementById("streamTypeTemplate").content
 const ACCOUNT_TEMPLATE = document.getElementById("accountTemplate").content
 const BOOL_TEMPLATE = document.getElementById("boolTemplate").content
 const SELECT_TEMPLATE = document.getElementById("selectTemplate").content
 const RANGE_TEMPLATE = document.getElementById("rangeTemplate").content
-const ACCOUNT_EDIT_TEMPLATE = document.getElementById("accountEditTemplate").content
 const ERROR_TEMPLATE = document.getElementById("errorTemplate").content
-//const ACTIVE_STREAMS_KEY = "ActiveStreams"
 
+const SETTINGS = new MetadataSettings("../options.json")
 
-/**
- * @type {Settings}
- */
-let SETTINGS = null
-/**
- * @type {StreamClientController}
- */
-let ACCOUNTS_CONTROLLER = null
-
-let MODAL_CONTROLLER = new ModalHTMLController("modal", "modalTitle", "modalBody", "modalAccept", "modalClose", "om_error", "ob_modalOK")
-
-/**
- * @param {Event} evt 
- * @param {Function} tryFunc 
- */
-async function OnAccountButton(evt, tryFunc){
+async function OnAccountButton(evt, promise){
 	const elem = evt.target
 	elem.setAttribute("disabled", "")
-	try{
-		await tryFunc(elem.closest(".list-group-item").id)
-	}catch(e){
+	return promise.catch(e => {
 		console.warn(e)
-		MODAL_CONTROLLER.DisplayErrorModal(e.message)
-	}
-	elem.removeAttribute("disabled")
+		DisplayErrorModal(e.message)
+	}).finally(() => elem.removeAttribute("disabled"))
 }
 
 /**
@@ -53,22 +35,20 @@ async function OnAccountButton(evt, tryFunc){
  * @param {HTMLInputElement | HTMLSelectElement} inputElem 
  * @param {Settings} settings 
  */
-async function OnManualInputChange(inputElem, settings){
+async function OnManualInputChange(inputElem){
 	inputElem.setAttribute("disabled", "")
 	inputElem.setAttribute("indeterminate", "")
 
 	try{
-		const value = await settings.Get(inputElem.id)
+		return await SETTINGS.Set(inputElem.id, GetElemValue(inputElem)) // handle removing the attribute when we get the onChanged confirmation
+	}catch(e){
+		console.warn(e)
 		try{
-			await settings.Set(inputElem.id, GetElemValue(inputElem))
-			return // handle removing the attribute when we get the onChanged confirmation
-		}catch(e){
-			console.warn(e);
-			SetElemValue(inputElem, value)
-			MODAL_CONTROLLER.DisplayErrorModal(e.message)
+			SetElemValue(inputElem, await SETTINGS.Get(inputElem.id))
+			DisplayErrorModal(e.message)
+		}catch(e1){
+			console.warn(e1)
 		}
-	}catch(ex){
-		console.warn(ex)
 	}
 
 	inputElem.removeAttribute("disabled")
@@ -76,270 +56,171 @@ async function OnManualInputChange(inputElem, settings){
 }
 
 function ImportTemplate(template, selector="input, select"){
-	let templateElem = document.importNode(template, true)
+	const templateElem = document.importNode(template, true)
 	return [templateElem, templateElem.querySelector(selector)]
 }
 
-function LoadOptionsContainer(container, keys, getConfigByKeyFunc, getValueByKeyFunc, onInputChange){
-	//console.log(container, keys, getConfigByKeyFunc, getValueByKeyFunc)
-
-	container.textContent = "" // clear out the container
-	let _GetTemplateAndSetupFunc = (config)=>{
-		if("options" in config)
-			return [SELECT_TEMPLATE, (input, config, name)=>{
-				for(const option of config["options"]){
-					let elem = document.createElement("option")
-					LoadI18nTextToElem(elem, "oo_" + name + option.toString()) // dont care when this completes, using .toString, because name could be a number
-					elem.value = option
-					input.appendChild(elem)
-				}
-			}]
-		if("min" in config && "max" in config)
-			return [RANGE_TEMPLATE, (input, config, name)=>{
-				let _onRangeInput = (event)=>{event.target.parentNode.querySelector("output").textContent = `[${event.target.value}]`}
-
-				input.addEventListener("input", _onRangeInput)
-				input.min = config["min"]
-				input.max = config["max"]			
-				_onRangeInput({target:input})
-			}]
-		if(typeof config["value"] === 'boolean')
-			return [BOOL_TEMPLATE, ()=>{}]
-		throw Error(`Unknown Setting Type: ${config}`)
-	}
-
-	return keys.map(async key => {
+async function LoadOptionsContainer(){
+	OPTIONS_CONTAINER.textContent = "" // clear out the OPTIONS_CONTAINER
+	
+	let meta = await SETTINGS.GetMetadata()
+	for (const [k, v] of meta.filter(([k, v]) => v != null)) {
 		try{
-			let config = await getConfigByKeyFunc(key)
-			if(config == null)
-				return
-			//console.log(key, config)
-			let [template, setupFunc] = _GetTemplateAndSetupFunc(config)
-			let [elem, input] = ImportTemplate(template)
-			setupFunc(input, config, key)
+			let elem, input
+			if("options" in v){
+				[elem, input] = ImportTemplate(SELECT_TEMPLATE)
+				for(const option of v["options"]){
+					const e = document.createElement("option")
+					LoadI18nTextToElem(e, k + option.toString()) // dont care when this completes, using .toString, because name could be a number
+					e.value = option
+					input.appendChild(e)
+				}
+			}else if("min" in v && "max" in v){
+				[elem, input] = ImportTemplate(RANGE_TEMPLATE, `input[type="range"]`)
+				const sInput = elem.querySelector(`input[type="number"]`)
+				input.addEventListener("input", e => sInput.value = e.target.value)
+				input.min = sInput.min = v["min"]
+				input.max = sInput.max = v["max"]
+				sInput.addEventListener("input", e => {
+					if(!!e.target.value) // must be a non-empty string, otherwise reset e.target.value
+						input.value = Clamp(e.target.value, v["min"], v["max"])
+						// this fall-through is intentional and important to reset e.target if value is clamped
+					e.target.value = input.value
+				})
+				sInput.addEventListener('change', e => {
+					if(!!e.target.value && e.target.value >= v["min"] && e.target.value <= v["max"]){
+						OnManualInputChange(input) // at this point input and sInput should be synced
+					}
+				})
+				if(!v["disabled"])
+					sInput.removeAttribute("disabled")
+				sInput.removeAttribute("indeterminate")
+				SetElemValue(sInput, v[DEFAULT])
+			}else if(typeof v["value"] === 'boolean'){
+				[elem, input] = ImportTemplate(BOOL_TEMPLATE)
+			}else{
+				throw Error(`Unknown Setting Type: ${v}`)
+			}
 		
-			let label = elem.querySelector("label")
-			LoadI18nTextToElem(label, "ol_"+key) // don't care when this completes
-		
-			input.id = key
-			label.htmlFor = key
-		
-			input.addEventListener('change', onInputChange);
-		
-			SetElemValue(input, await getValueByKeyFunc(key))
+			const label = elem.querySelector("label")
+			LoadI18nTextToElem(label, k) // don't care when this completes
+			input.id = label.htmlFor = k
+				
+			SetElemValue(input, v[DEFAULT])
+			input.addEventListener('change', e => OnManualInputChange(e.target))
 			
-			if(config["disabled"])
-				elem.firstElementChild.classList.add("disabled")
-			else
-				input.removeAttribute("disabled")
+			v["disabled"] ? elem.firstElementChild.classList.add("disabled") : input.removeAttribute("disabled")
 			input.removeAttribute("indeterminate")
 			//console.log(elem)
-			container.appendChild(elem) // do this last because it leaves an empty docfrag
+			OPTIONS_CONTAINER.appendChild(elem) // do this last because it leaves an empty docfrag
 		}catch(e){
-			console.warn("Failed to create element for setting: " + key, e)
+			console.warn("Failed to create element for setting: " + k, e)
 		}
-	})
-}
-
-async function OnDeleteAccountButton(id){
-	const client = await ACCOUNTS_CONTROLLER.GetClient(id)
-	const username = await client.GetUsername()
-	const typeText = await GetI18nText("ol_"+client.Type)
-	
-	MODAL_CONTROLLER.DisplayModal({
-		title:GetI18nText("oh_accountRemove", [typeText]), 
-		primaryButton:"ob_accountRemove", 
-		secondaryButton:"ob_modalCancel", 
-		contents:username == null ? GetI18nText("om_deleteDisconnectedAccountModal", [typeText]) : GetI18nText("om_deleteAccountModal", [typeText, username]), 
-		callback:(e, ok)=>{if(ok)return ACCOUNTS_CONTROLLER.Delete(id)}
-	})
-}
-
-async function OnFixAccountButton(id){
-	const client = await ACCOUNTS_CONTROLLER.GetClient(id)
-	await client.GetAuthentication(true)
-	await client.GetUsername(true)
-	//TODO update extension icon count!
-}
-
-async function OnEditAccountButton(id, isNew=false){
-	const account = await ACCOUNTS_CONTROLLER.GetClient(id)
-	const clientType = account.Type
-	//console.log(account)
-
-	account.OnUpdate((changes)=>{
-		console.log("Account Update:", changes)
-		for(const key in changes){
-			const elem = document.getElementById(key)
-			if(elem == null){
-				console.warn(`Could not find element with ID ${key} to update`)
-				continue
-			}
-			SetElemValue(elem, changes[key])
-			elem.removeAttribute("disabled")
-			elem.removeAttribute("indeterminate")
-		}
-	})
-
-	MODAL_CONTROLLER.DisplayModal({
-		title:GetI18nText(isNew ? "oh_accountsAdd" : "oh_accountsEdit", [await GetI18nText("ol_"+clientType)]),
-		contents:(async ()=>{
-			const elem = document.importNode(ACCOUNT_EDIT_TEMPLATE, true)
-
-			const config = (await ACCOUNTS_CONTROLLER.GetClientTypeConfig(clientType))?.["Options"]
-			if(config != null)
-				LoadOptionsContainer(elem.firstElementChild, Object.keys(config), k=>config[k], async k=>await account.Get(k), e=>OnManualInputChange(e.target, account))
-			if(isNew)
-				LoadI18nTextToElem(elem.querySelector(".description"), "ol_" + account.AuthType)
-			return elem
-		})(),
-		primaryButton:isNew ? "ob_accountsCreate" : "ob_modalClose",
-		secondaryButton:isNew ? "ob_modalCancel" : undefined,
-		callback:isNew ? async (e, accepted)=>{
-			if(accepted){
-				const newStreams = await ACCOUNTS_CONTROLLER.Activate(id)
-				console.log(newStreams)
-				if(await SETTINGS.Get("notifications")){
-				}
-			}else{
-				await ACCOUNTS_CONTROLLER.Delete(id)
-			}
-		} : undefined
-	})
-}
-
-/**
- * @param {GenericStreamClient} client 
- */
-async function CreateClientElem(client){
-	const type = client.Type
-	const typeText = await GetI18nText("ol_"+type)
-
-	const elem = document.importNode(ACCOUNT_TEMPLATE, true)
-	//console.log(elem)
-	elem.querySelector(".list-group-item").id = client.ID
-	elem.querySelector("img.accountIcon").src = `../icons/${type}.png`
-	elem.querySelector("a").href = await client.GetSite()
-	const username = await client.GetUsername()
-	if(username != null)
-		LoadI18nTextToElem(elem.querySelector("label"), "oh_accountName", [typeText, username])
-	else
-		LoadI18nTextToElem(elem.querySelector("label"), "oh_accountNameMissing", [typeText])
-
-	const primaryButton = elem.querySelector(".btn-primary")
-	LoadI18nTextToElem(primaryButton, "ob_accountEdit")
-	primaryButton.addEventListener("click", async evt=>await OnAccountButton(evt, OnEditAccountButton))
-
-	const fixButton = elem.querySelector(".btn-secondary")
-	LoadI18nTextToElem(fixButton, "ob_accountFix")
-	fixButton.addEventListener("click", async evt=>await OnAccountButton(evt, OnFixAccountButton))
-	//if(await client.GetAuthentication() != null)
-	//	fixButton.style.display = "none"
-
-	const removeButton = elem.querySelector(".btn-warning")
-	LoadI18nTextToElem(removeButton, "ob_accountRemove")
-	removeButton.addEventListener("click", async (evt)=>await OnAccountButton(evt, OnDeleteAccountButton))
-
-	elem.querySelector(".errors").append(...Object.entries(await client.GetErrorState() ?? {}).map(([message, count])=>{
-		const el = document.importNode(ERROR_TEMPLATE, true)
-		el.querySelector(".desc").textContent = message
-		el.querySelector(".count").textContent = count
-		el.querySelector(".remove").addEventListener("click", async (e)=>{
-			e.stopPropagation(); 
-			await client.RemoveErrorState(message)
-			e.target.parentNode.remove()
-		})
-		return el
-	}))
-	return elem
+	}
 }
 
 async function LoadClientsContainer(){
-	return (await ACCOUNTS_CONTROLLER.GetClientIDs()).map(async (id) => {
-		ACCOUNTS_CONTAINER.prepend(await CreateClientElem(await ACCOUNTS_CONTROLLER.GetClient(id)))
-	})
+	const dropdown = ACCOUNTS_CONTAINER.lastElementChild
+	ACCOUNTS_CONTAINER.textContent = ""
+	const [accounts, errors] = await Promise.all([StreamsService.GetClientNames(), StreamsService.GetErrors()])
+	ACCOUNTS_CONTAINER.append(...Object.entries(accounts).map(([provider, clients])=>{
+		const providerElem = document.importNode(STREAMTYPE_TEMPLATE, true)
+		providerElem.querySelector("img").src = `../icons/${provider}.png`
+		LoadI18nTextToElem(providerElem.querySelector("h3"), provider)
+		const listElem = providerElem.querySelector("ul")
+		listElem.append(...Object.entries(clients).map(([UID, name])=>{
+			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
+			clientElem.querySelector("label").textContent = name
+			clientElem.querySelector("button.btn-close").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
+			const errs = errors?.[provider]?.[UID]
+			if(errs != null){
+				clientElem.querySelector(`.errors`).classList.remove("d-none")
+				clientElem.querySelector(".errors").append(...Object.entries(errs).map(([message, count])=>{
+					const el = document.importNode(ERROR_TEMPLATE, true)
+					el.querySelector(".desc").textContent = message
+					el.querySelector(".count").textContent = count
+					el.querySelector(".remove").addEventListener("click", async (e)=>{
+						e.stopPropagation();
+						await StreamsService.ClearError(provider, UID, message)
+						e.target.parentNode.remove()
+					})
+					return el
+				}))
+			}
+			return clientElem
+		}))
+		return providerElem
+	}), dropdown)
 }
 
 async function OnAccountAddButtonSelected(evt){
 	const type = evt.target.value // get option type value and reset dropdown
 	ACCOUNTS_ADD_BUTTON.selectedIndex = GetSelectOption(ACCOUNTS_ADD_BUTTON, o=>o.hasAttribute("hidden")).index
 	try{
-		return await OnEditAccountButton(await ACCOUNTS_CONTROLLER.CreateClientID(type), true)
+		await StreamsService.Create(type)
 	}catch(e){
-		console.warn(e);
-		MODAL_CONTROLLER.DisplayErrorModal(e.message)
+		console.warn(e)
+		DisplayErrorModal(e.message)
 	}
 }
 
-function OnSettingsUpdate(changes){
-	console.log("Settings Update:", changes)
-	for(const key in changes){
-		const elem = document.getElementById(key)
-		if(elem == null){
-			console.warn(`Could not find element with ID ${key} to update`)
-			continue
+async function OnStorageChanged(changes){
+	console.debug("Settings Update:", changes)
+	const metadataKeys = SETTINGS.GetMetadata().then(r => r.map(([k, v]) => k))
+	for(const [k, v] of changes){
+		switch(k){
+			case CLIENTS_KEY:
+				LoadClientsContainer()
+				break;
+			case THEME:
+				Browser.ApplyTheme(v)
+				// case fallthrough intentional
+			default:
+				if((await metadataKeys).includes(k)){
+					function SetVal(elem){
+						SetElemValue(elem, v)
+						elem.removeAttribute("disabled")
+						elem.removeAttribute("indeterminate")
+						return elem
+					}
+					let e = document.getElementById(k)
+					SetVal(e)
+					if(e.type === "range")
+						SetVal(e.parentElement.querySelector(`input[type="number"]`))
+				}
 		}
-		SetElemValue(elem, changes[key])
-
-		if(key === THEME){
-			Browser.ApplyTheme(changes[key])
-		}
-
-		elem.removeAttribute("disabled")
-		elem.removeAttribute("indeterminate")
 	}
-}
-
-async function OnAccountsUpdate(changes){
-	const existing = Array.from(ACCOUNTS_CONTAINER.getElementsByClassName("list-group-item")).filter(e=>e!==ACCOUNTS_ADD_BUTTON).map(e=>e.id)
-	console.log("Clients Update:", changes, existing)
-	existing.filter(x=>!changes.includes(x)).forEach(id=>{ // items removed
-		ACCOUNTS_CONTAINER.removeChild(document.getElementById(id))
-	})
-	changes.filter(x=>!existing.includes(x)).forEach(async id=>{ // items added
-		ACCOUNTS_CONTAINER.prepend(await CreateClientElem(await ACCOUNTS_CONTROLLER.GetClient(id)))
-	})
 }
 
 function GetConfirmModal(titleAndPrimaryKey, contentsKey, CBFunc){
-	return ()=>MODAL_CONTROLLER.DisplayModal({
-		title:titleAndPrimaryKey, 
-		primaryButton:titleAndPrimaryKey, 
-		secondaryButton:"ob_modalCancel", 
-		contents:contentsKey, 
-		callback:(e, ok)=>{if(ok)return CBFunc()}
-	})
+	const TPM = GetI18nText(titleAndPrimaryKey)
+	return () => DisplayModal(TPM, TPM, GetI18nText(contentsKey), GetI18nText("cancel"), (e, ok)=>{if(ok)return CBFunc()})
 }
 
-window.onload = async ()=>{
-	SETTINGS = await Settings.Create()
-	Browser.ApplyTheme(await SETTINGS.Get(THEME))
-	ACCOUNTS_CONTROLLER = await StreamClientController.Create()
+SETTINGS.OnUpdate(OnStorageChanged)
 
-	SETTINGS.OnUpdate(OnSettingsUpdate)
-	ACCOUNTS_CONTROLLER.OnUpdate(OnAccountsUpdate)
+window.onload = async ()=>{
+	SETTINGS.GetSingle(THEME).then(Browser.ApplyTheme)
 
 	ACCOUNTS_ADD_BUTTON.addEventListener("change", OnAccountAddButtonSelected)
+	CLEAR_ALL_DATA_BUTTON.addEventListener("click", GetConfirmModal("clearAllData", "deleteAllModal", Browser.ClearStorage))
+	OPTIONS_RESET_BUTTON.addEventListener("click", GetConfirmModal("clearOptions", "resetOptionsModal", ()=>SETTINGS.Reset()))
+	ACCOUNTS_RESET_BUTTON.addEventListener("click", GetConfirmModal("clearAccounts", "deleteAccountsModal", StreamsService.DeleteAll))
 
-	CLEAR_ALL_DATA_BUTTON.addEventListener("click", GetConfirmModal("ob_modalClearAllData", "om_deleteAllModal", Browser.ClearStorage))
-	OPTIONS_RESET_BUTTON.addEventListener("click", GetConfirmModal("ob_modalClearOptions", "om_resetOptionsModal", ()=>SETTINGS.Reset()))
-	ACCOUNTS_RESET_BUTTON.addEventListener("click", GetConfirmModal("ob_modalClearAccounts", "om_deleteAccountsModal", ()=>ACCOUNTS_CONTROLLER.Delete()))
+	LoadI18nTextToElem(CLEAR_ALL_DATA_BUTTON, "clearAllData")
+	LoadI18nTextToElem(OPTIONS_RESET_BUTTON, "clearOptions")
+	LoadI18nTextToElem(ACCOUNTS_RESET_BUTTON, "clearAccounts")
+	LoadI18nTextToElem(document.getElementById("accountsHeader"), "accounts")
+	LoadI18nTextToElem(document.getElementById("optionsHeader"), "options")
+	LoadI18nTextToElem(GetSelectOption(ACCOUNTS_ADD_BUTTON, o=>o.hasAttribute("hidden")), "accountsAdd")
 
-	LoadI18nTextToElem(CLEAR_ALL_DATA_BUTTON, "ob_modalClearAllData")
-	LoadI18nTextToElem(OPTIONS_RESET_BUTTON, "ob_modalClearOptions")
-	LoadI18nTextToElem(ACCOUNTS_RESET_BUTTON, "ob_modalClearAccounts")
-	LoadI18nTextToElem(document.getElementById("accountsHeader"), "oh_accounts")
-	LoadI18nTextToElem(document.getElementById("optionsHeader"), "oh_options")
-	LoadI18nTextToElem(GetSelectOption(ACCOUNTS_ADD_BUTTON, o=>o.hasAttribute("hidden")), "ob_accountsAdd")
-
-	LoadOptionsContainer(document.getElementById("optionsContainer"), SETTINGS.Keys(), key => SETTINGS.GetMetadata(key), async key => await SETTINGS.Get(key), (e)=>OnManualInputChange(e.target, SETTINGS))
+	LoadOptionsContainer()
 	LoadClientsContainer()
 
-	// setup add account dropdown
-	StreamClientController.ClientTypes().forEach(type=>{ // setup the dropdown with available service types
-		let elem = document.createElement("option")
-		LoadI18nTextToElem(elem, "ol_" + type) // dont care when this completes, using .toString, because name could be a number
-		elem.value = type
+	for(const provider of PROVIDER_TYPES()){ // setup the dropdown with available service types
+		const elem = document.createElement("option")
+		LoadI18nTextToElem(elem, provider) // dont care when this completes
+		elem.value = provider
 		ACCOUNTS_ADD_BUTTON.appendChild(elem)
-	})
+	}
 }

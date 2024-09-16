@@ -14,27 +14,13 @@ export function IsEmpty(obj){return Object.keys(obj).length === 0}
 
 /**
  * @param {string} str 
- * @param  {...string} inputs 
- */
-/*export function FormatString(str, ...inputs){
-	return str.replace(/{(\d+)}/g, (match, number)=>{ 
-		return inputs[number] != null ? inputs[number] : match
-	})
-}*/
-
-/**
- * @param {string} str 
  * @param  {* || []} input
  */
-export function FormatString(str, input){
-	return str.replace(/{(.+?)}/g, (match, number) => input[number] ?? match)
-}
+export function FormatString(str, input){return str.replace(/{(.+?)}/g, (match, number) => input[number] ?? match)}
 
 export function IsStr(str){return typeof str === 'string' || str instanceof String}
 
-export function IsStrWithVal(str){
-	return IsStr(str) && str.trim().length > 0
-}
+export function IsStrWithVal(str){return IsStr(str) && str.trim().length > 0}
 
 /**
  * @param {object} data 
@@ -47,7 +33,7 @@ export function EncodeQuery(data){
 export function DecodeUriQuery(uri){
 	let index = uri.indexOf("?")
 	if(index == -1)
-		index = uri.indexOf("#")+1
+		index = uri.indexOf("#") + 1
 	return Object.fromEntries(new URLSearchParams(uri.slice(index)))
 }
 
@@ -65,14 +51,7 @@ export function EncodeDataURL(url_, data){
  * @param {Function} func 
  * @param {Array} vars 
  */
-export function PromiseCB(func, ...vars){
-	//console.log(func.name, ...vars)
-	return new Promise((resolve, reject)=>{
-		func(...vars, (result)=>{
-			resolve(result)
-		})
-	})
-}
+export function PromiseCB(func, ...vars){return new Promise((resolve, reject)=>{func(...vars, (result)=>{resolve(result)})})}
 
 /**
  * 
@@ -80,24 +59,16 @@ export function PromiseCB(func, ...vars){
  * @param {Function} valueFunc 
  * @param {Function} keyFunc
  */
-export function ObjMap(obj, valueFunc, keyFunc=(v, k)=>k){
-	return Object.fromEntries(Object.entries(obj).map(
-    	([key, value], index) => [keyFunc(value, key, index), valueFunc(value, key, index)]
-    )
-  )
+export function ObjMap(obj, valueFunc, keyFunc=(k, v)=>k){
+	return Object.fromEntries(Object.entries(obj).map(([k, v], i) => [keyFunc(k, v, i), valueFunc(k, v, i)]))
 }
 
-/**
- * 
- * @param {*} obj 
- * @param {Function} valueFunc 
- */
- export function ObjTF(obj, valueFunc){
-	Object.values(obj).forEach(v=>obj[v] = valueFunc(v))
-	return Object.fromEntries(Object.entries(obj).map(
-    	([key, value], index) => [keyFunc(value, key, index), valueFunc(value, key, index)]
-    )
-  )
+export function ObjVMap(obj, valueFunc){
+	return Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, valueFunc(k, v, i)]))
+}
+
+export async function ObjAVMap(obj, valueFuncAsync){
+	return Object.fromEntries(await Promise.all(Object.entries(obj).map(async ([k, v], i) => [k, await valueFuncAsync(k, v, i)])))
 }
 
 /**
@@ -105,18 +76,15 @@ export function ObjMap(obj, valueFunc, keyFunc=(v, k)=>k){
  * @param {*} obj 
  * @param {Function} func  input: [key, value] array, output: boolean
  */
-export function ObjFilter(obj, func){
-	return Object.fromEntries(Object.entries(obj).filter(func))
-}
+export function ObjFilter(obj, func){return Object.fromEntries(Object.entries(obj).filter(func))}
 
 /**
- * 
+ * Makes an object of copied values from object
  * @param {*} obj 
  * @param {Array[string]} keys 
  */
-export function Pick(obj, keys, deepCopy=false){
-	return Object.fromEntries(keys.filter(k=>k in obj).map(k => [k, deepCopy ? JSON.parse(JSON.stringify(obj[k])) : obj[k]]))
-}
+export function Pick(obj, keys, deepCopy=false){return Object.fromEntries(keys.filter(k=>k in obj).map(k => [k, deepCopy ? JSON.parse(JSON.stringify(obj[k])) : obj[k]]))}
+export function Copy(o){return JSON.parse(JSON.stringify(o))}
 
 /**
  * Handles an array of async funcs, returns an array of any resulting values
@@ -217,9 +185,7 @@ export function SetSelectByValue(selectElem, value){
  * @param {Number} index
  * @returns {HTMLOptionElement}
  */
-export function GetSelectOptionByIndex(selectElem, index){
-	return selectElem.options.item(index)
-}
+export function GetSelectOptionByIndex(selectElem, index){return selectElem.options.item(index)}
 
 /**
  * @param {HTMLInputElement | HTMLSelectElement} elem 
@@ -239,7 +205,7 @@ export function GetElemValue(elem){
 				case "text":
 					return elem.value
 			}
-			break;
+			break
 		case "SELECT":
 			return _getIntOrStrFromStr(elem.options[elem.selectedIndex].value)
 	}		
@@ -252,21 +218,15 @@ export function GetElemValue(elem){
  */
 export function SetElemValue(elem, value){
 	switch(elem.nodeName){
+		case "SELECT":
+			return SetSelectByValue(elem, value.toString())
 		case "INPUT":
 			switch(elem.type){
 				case "checkbox":
-					elem.checked = value
-					return
-				case "range":
-					elem.value = value
-					return
-				case "text":
-					elem.value = value
+					return elem.checked = value
+				default:
+					return elem.value = value
 			}
-			break;
-		case "SELECT":
-			SetSelectByValue(elem, value.toString())
-			return
 	}		
 	throw Error("Unknown Element type: " + elem)
 }
@@ -325,13 +285,17 @@ export async function ConsolidatePaginated(asyncFunc, filter=undefined, pageNum=
 }
 
 export function TrimChars(str, chars) {
-    let start = 0, end = str.length;
+    let start = 0, end = str.length
 
     while(start < end && chars.indexOf(str[start]) >= 0)
-        ++start;
+        ++start
 
     while(end > start && chars.indexOf(str[end - 1]) >= 0)
-        --end;
+        --end
 
-    return (start > 0 || end < str.length) ? str.substring(start, end) : str;
+    return (start > 0 || end < str.length) ? str.substring(start, end) : str
+}
+
+export function MixWith(base, ...classes){
+	return classes.reduce((c, m) => m(c), base)
 }
