@@ -263,7 +263,12 @@ async function LoadClientsContainer(){
 async function OnAccountAddButtonSelected(evt){
 	const type = evt.target.value // get option type value and reset dropdown
 	ACCOUNTS_ADD_BUTTON.selectedIndex = GetSelectOption(ACCOUNTS_ADD_BUTTON, o=>o.hasAttribute("hidden")).index
-	return await OnEditAccountButton(await ACCOUNTS_CONTROLLER.CreateClientID(type), true)
+	try{
+		return await OnEditAccountButton(await ACCOUNTS_CONTROLLER.CreateClientID(type), true)
+	}catch(e){
+		console.warn(e);
+		MODAL_CONTROLLER.DisplayErrorModal(e.message)
+	}
 }
 
 function OnSettingsUpdate(changes){

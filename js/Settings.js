@@ -84,7 +84,7 @@ export class Settings{
 	async Get(key){
 		this._EnsureKeyIsValid(key)
 		let k = this._CreateKey(key)
-		return (await Browser.GetStorage(k))[k] ?? this._GetDefault(key)
+		return (await Browser.GetStorage(k))?.[k] ?? this._GetDefault(key)
 	}
 
 	/**

@@ -1,6 +1,6 @@
 {
 	"name": "Streamitizer",
-	"version": "0.0.1",
+	"version": "1.0.1",
 	"manifest_version": 3,
 	"default_locale":"en",
 	"permissions": [
@@ -27,6 +27,7 @@
 	},
 	"background":{
 		"service_worker":"background.js",
+		"scripts":["background.js"],
 		"type":"module"
 	},
 	"action":{

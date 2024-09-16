@@ -23,10 +23,10 @@ export class WebRequest{
 		if(headers != null)
 			requestOptions["headers"] = headers
 
-		let response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions)
+		let response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions).catch(console.log)
 
-		if(!response.ok){
-			throw Error(`Network request failed with status ${response.status} ${response.statusText}: [${await response.text().catch()}]`)
+		if(!response?.ok){
+			throw Error(`Network request failed with status ${response.status} ${response.statusText}: [${await response.text().catch()}]`, {cause:response.status})
 		}
 		console.log(uri, responseClass, method, query, body, headers)
 

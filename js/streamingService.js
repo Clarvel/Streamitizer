@@ -256,7 +256,10 @@ export class StreamClientController{
 	 */
 	async GetErrors(clientIDs=null){
 		clientIDs ??= await this.GetClientIDs()
-		return clientIDs.map(async id=>await (await this.GetClient(id)).GetErrorState()).filter(e=>IsStrWithVal(e))
+		console.log(clientIDs)
+		let errors = await PromiseAll(clientIDs.map(async id=>await (await this.GetClient(id)).GetErrorState()), true)
+		console.log(errors)
+		return errors
 	}
 
 	// async _RebuildReadCacheAndFindNewStreams(streams, appendExisting){

@@ -96,10 +96,22 @@ export class GenericStreamClient{
 	async _CallFuncWithAuth(func){
 		try{
 			//console.log(func, this)
-			const auth = await this.GetAuthentication()
+			let auth = await this.GetAuthentication()
 			if(auth == null)
 				throw Error("Cannot invoke function without Authentication")
-			return await func(auth)
+			try{
+				return await func(auth)
+			}catch(e1){
+				// this is only intended to handle 401 unauthorized
+				if(e1.cause !== 401)
+					throw e1
+				
+				await this._Settings.Reset(AUTH_KEY) // hack to reset auth without being manually triggered
+				auth = await this.GetAuthentication()
+				if(auth == null)
+					throw Error("Cannot invoke function without Authentication")
+				return await func(auth)
+			}
 		}catch(e){
 			await this.SetErrorState(e.toString())
 			throw e

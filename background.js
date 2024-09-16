@@ -1,6 +1,6 @@
 import "./js/keepAlive.js"
 import { Browser } from "./js/browser.js"
-import { Settings } from "./js/settings.js"
+import { Settings } from "./js/Settings.js"
 import { Config } from "./js/Config.js"
 import { StreamClientController } from "./js/streamingService.js"
 import { GetI18nText, IsStrWithVal, PromiseAll } from "./js/utils.js"
@@ -26,17 +26,18 @@ let SETTINGS = null
  */
 let ACCOUNTS_CONTROLLER = null
 
-if(!Browser.Alarms.onAlarm.hasListeners())
-	Browser.Alarms.onAlarm.addListener(OnAlarm)
+//if(!Browser.Alarms.onAlarm.hasListeners())
+//	Browser.Alarms.onAlarm.addListener(OnAlarm)
 
 Browser.OnActiveStateChanged(OnActiveStateChanged)
 Browser.OnStorageStateChanged(_OnStorageChanged)
 //console.log(self.navigator, self.ononline)
 //self.ononline = ()=>console.warn("ONLINE!")
 //self.navigator.addEventListener('offline', ()=>console.warn("OFFLINE!"))
-OnStart()
 
 /* *********************************************************************************************************** */
+
+Browser.InvokeStartFunc(OnStart)
 
 async function _OnStorageChanged(changes){
 	console.log("STORAGE", changes)
@@ -79,8 +80,11 @@ async function OnAlarm(alarm){
 			}else{
 				console.log("cannot execute update, not online")
 			}
+		case BACKGROUND_UPDATER:
+			console.log(alarm)
+			UpdateBadge()
 		default:
-			console.log("UNKNOWN ALARM", alarm)
+			console.warn("UNKNOWN ALARM", alarm)
 	}
 }
 
@@ -257,25 +261,30 @@ async function UpdateBadge(){
 	SETTINGS ??= await GetSettingsInstance()
 
 	const streamCache = await ACCOUNTS_CONTROLLER.GetCachedStreams(undefined, await SETTINGS.Get(MERGE_SAME_NAME))
-	const cacheLength = streamCache.length
+	let streamCount = streamCache.length
 	console.log(streamCache)
 	
-	const accountErrsCount = (await ACCOUNTS_CONTROLLER.GetErrors()).length
+	let errs = await ACCOUNTS_CONTROLLER.GetErrors()
+	console.log(errs)
+	let errsCount = errs.map(Object.values).flat().reduce((prev, curr) => prev + curr)
+	console.log(errsCount, errs.map(Object.values), errs.map(Object.values).flat())
+	const accountErrsCount = errsCount
 
 	// TODO: BECAUSE i18n IS BROKEN IN SERVICE WORKER: https://bugs.chromium.org/p/chromium/issues/detail?id=1268098
 	//const title = await GetI18nText("pl_currentStreaming", [activeStreamsCount, accountErrsCount])
-	let title = [`${cacheLength} Pe${cacheLength === 1 ? "rson" : "ople"} Streaming`]
+	let title = [`${streamCount} Pe${streamCount === 1 ? "rson" : "ople"} Streaming`]
 	if(accountErrsCount > 0)
 		title.push(`${accountErrsCount} Account Error${accountErrsCount > 1 ? "s" : ""}`)
 	title = title.join('\n')
 
-	console.log(title, cacheLength, accountErrsCount, streamCache)
-	Browser.SetBadgeTitle(title)
+	console.log(title, streamCount, accountErrsCount, streamCache)
+	if(streamCount == 0) streamCount = ""
 	if(accountErrsCount > 0){
-		cacheLength += '⚠' // don't acc account errors number to save space
+		streamCount += "⚠" // don't acc account errors number to save space
 		Browser.SetBadgeColor("#FFAE42")
 	}else{
 		Browser.SetBadgeColor("#1E2F97")
 	}
-	Browser.SetBadgeText(cacheLength > 0 ? cacheLength : "")
+	Browser.SetBadgeTitle(title)
+	Browser.SetBadgeText(streamCount)
 }

@@ -6,6 +6,14 @@ let _lastActiveState = "active"
 
 
 export class Browser{
+	static InvokeStartFunc(func){
+		if(chrome){
+			func()
+		}else{
+			window.onload = func
+		}
+	}
+
 	static ApplyTheme(theme){
 		if(theme === "Dark" || theme === "System" && window.matchMedia('(prefers-color-scheme: dark)').matches)
 			document.documentElement.setAttribute("data-bs-theme", "dark")

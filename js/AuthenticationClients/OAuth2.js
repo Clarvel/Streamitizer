@@ -10,9 +10,9 @@ export class OAuth2{
 		// generate code verifier:
 		console.log("Generating Challenge")
 		let arr = new Uint8Array(1)
-		window.crypto.getRandomValues(arr) // 0-255 int
+		crypto.getRandomValues(arr) // 0-255 int
 		arr = new Uint8Array(Math.round(43 + arr[0]/3)) // 43-128 characters long
-		window.crypto.getRandomValues(arr)
+		crypto.getRandomValues(arr)
 
 		return String.fromCharCode(...arr.map(c=>{
 			c = Math.floor(c * 66 / 256)  // convert range from 0-255 to 0-66
