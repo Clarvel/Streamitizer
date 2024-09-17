@@ -14,7 +14,7 @@ export class OAuth2PKCEAuth extends Authentication{
 		this._authURI = authenticationAPI
 		this._tokenURI = tokenAPI
 		this._scopes = scopes
-		this._PKCE = PKCE
+		this._PKCE = PKCE ?? true
 
 		this._OAUTH_PROMISE = null
 	}

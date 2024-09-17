@@ -4,8 +4,7 @@
 		"ClientID": "68cb4df3-ea56-4168-a402-f366fa3cdef9",
 		"AuthenticationAPI": "https://oauth.picarto.tv/authorize",
 		"TokenAPI": "https://oauth.picarto.tv/token",
-		"Scopes": ["readpriv", "readpub"],
-		"PKCE": true
+		"Scopes": ["readpriv", "readpub"]
 	},
 	"piczel":{
 		"Site": "https://piczel.tv",
