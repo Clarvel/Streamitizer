@@ -6,11 +6,10 @@
 * display to user
 
 ## TODO: Known Issues
-* notifications missing
-* twitch and picarto require old app perms
-* get proper firefox key?
+* Youtube does not utilize an API and is dependent on HTML scraping
+* Twitch and Picarto aren't setup to redirect properly in Firefox, as they need new client id/secret setup
 
-options can be diabled by adding `"disabled":true` to the relevant section of `options.json`
+options can be disabled by adding `"disabled":true` to the relevant section of `options.json`
 
 
 ## Streaming Sites
@@ -40,4 +39,5 @@ let streams = GET https://youtube.googleapis.com/youtube/v3/channels?part=snippe
 * UGH, this isn't working, youtube's API endpoints don't make it easy(or possible?) to get a list of followed channels that are streaming. Just gonna scrape the subscriptions page.
 
 ### Piczel
-no official API, but an API endpoint exists
+personal tokens: https://piczel.tv/account/personal-tokens
+API documentation: https://documenter.getpostman.com/view/12122005/2sA3e49od8
