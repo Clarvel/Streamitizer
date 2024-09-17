@@ -4,7 +4,8 @@
 		"ClientID": "68cb4df3-ea56-4168-a402-f366fa3cdef9",
 		"AuthenticationAPI": "https://oauth.picarto.tv/authorize",
 		"TokenAPI": "https://oauth.picarto.tv/token",
-		"Scopes": ["readpriv", "readpub"]
+		"Scopes": ["readpriv", "readpub"],
+		"PKCE": true
 	},
 	"piczel":{
 		"Site": "https://piczel.tv",
@@ -16,7 +17,7 @@
 		"ClientID": "eq1wpnbv4jmkq48g9v1bsepfvoh4ou",
 		"AuthenticationAPI": "https://id.twitch.tv/oauth2/authorize",
 		"Scopes": ["user:read:follows"],
-		"PKCE":false
+		"PKCE": false
 	},
 	"youtube":{
 		"Site": "https://youtube.com"

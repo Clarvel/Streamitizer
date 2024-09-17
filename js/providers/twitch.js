@@ -4,7 +4,7 @@ import { WebRequest } from "../webRequest.js"
 
 export class Twitch extends Provider(OAuth2PKCEAuth){    
     Payload(auth){
-		return {headers:{"authorization":`${auth["token_type"] ?? "Bearer"} ${auth["access_token"]}`, "client-id":this.ClientID}}
+		return {headers:{"authorization":`${"Bearer"} ${auth["access_token"]}`, "client-id":this.ClientID}} // twitch returns lowercase 'bearer' but expects uppercase :/
 	}
     async GetUIDAndName(auth){
         var userData = (await WebRequest.GET("https://api.twitch.tv/helix/users", this.Payload(auth)))["data"][0]
