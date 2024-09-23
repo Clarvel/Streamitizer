@@ -101,7 +101,7 @@ export class StreamsService{
             const client = new PROVIDERS[provider](metadata[provider])
             return ObjAVMap(clients, async (UID, [auth, name]) => {
                 try{
-                    return await client.FetchStreams(auth, UID)
+                    return await client.FetchStreams(auth, UID) ?? []
                 }catch(e){
                     try{
                         auth = await client.Refresh(auth)
