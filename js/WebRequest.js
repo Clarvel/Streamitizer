@@ -17,17 +17,17 @@ export class WebRequest{
 	 * @template T
 	 */
 	static async Fetch(uri, method, {query=undefined, body=undefined, headers=undefined, responseClass=undefined}){
-		let requestOptions = {"method":method}
+		const requestOptions = {"method":method}
 		if(body != null)
 			requestOptions["body"] = EncodeQuery(body)
 		if(headers != null)
 			requestOptions["headers"] = headers
 
-		let response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions)
-
-		if(!response?.ok){
+		const response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions).catch(console.warn)
+		if(!response)
+			return null // fetch returned no response!
+		if(!response.ok)
 			throw Error(`Network request failed with status ${response.status} ${response.statusText}: [${await response.text().catch()}]`, {cause:response.status})
-		}
 		console.debug(uri, responseClass, method, query, body, headers)
 
 		if(typeof responseClass === 'string')
