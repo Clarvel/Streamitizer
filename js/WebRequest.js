@@ -23,7 +23,7 @@ export class WebRequest{
 		if(headers != null)
 			requestOptions["headers"] = headers
 
-		const response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions).catch(console.warn)
+		const response = await fetch(query ? EncodeDataURL(uri, query) : uri, requestOptions)
 		if(!response)
 			return null // fetch returned no response!
 		if(!response.ok)
