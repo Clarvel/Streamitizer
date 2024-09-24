@@ -104,7 +104,7 @@ export class StreamsService{
 					return await client.FetchStreams(auth, UID)
 				}catch(e){
 					if(e instanceof TypeError)
-						throw // likely means network disconnected, so discard results
+						throw e// likely means network disconnected, so discard results
 					try{ // if it wasn't a TypeError, it was likely an auth error, so try to re-auth
 						auth = await client.Refresh(auth)
 						let [newUID, newName] = await client.GetUIDAndName(auth)
