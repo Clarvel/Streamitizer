@@ -9,43 +9,43 @@ const SETTINGS = new MetadataSettings("../options.json")
 async function OnStorageChanged(updates){
 	console.debug(updates)
 	for (const [k, v] of updates) {
-        switch(k){
-            case UPDATE_INTERVAL_KEY:
+		switch(k){
+			case UPDATE_INTERVAL_KEY:
 				console.log(k, v)
-                UpdateAlarm(v)
+				UpdateAlarm(v)
 				break
 			case ERRS_KEY:
 				UpdateBadge(null, v)
-            default:
-                //console.warn("UNKNOWN STORAGE CHANGE", updates)
-        }
-    }
+			default:
+				//console.warn("UNKNOWN STORAGE CHANGE", updates)
+		}
+	}
 }
 
 async function OnAlarm(alarm){
-    switch(alarm.name){
-        case UPDATE_STREAMS_ID:
-            return Browser.Lock(UPDATE_STREAMS_ID, UpdateCurrentStreamers)
-        default:
-            console.warn("UNKNOWN ALARM:" + alarm)
-    }
+	switch(alarm.name){
+		case UPDATE_STREAMS_ID:
+			return Browser.Lock(UPDATE_STREAMS_ID, UpdateCurrentStreamers)
+		default:
+			console.warn("UNKNOWN ALARM:" + alarm)
+	}
 }
 
 async function UpdateAlarm(updateInterval=null){
-    let lastUpdate = null
-    if(updateInterval == null || await Browser.GetAlarm(UPDATE_STREAMS_ID) == null){        
-        console.debug("Alarm not found. creating...")
+	let lastUpdate = null
+	if(updateInterval == null || await Browser.GetAlarm(UPDATE_STREAMS_ID) == null){
+		console.debug("Alarm not found. creating...")
 		;[updateInterval, lastUpdate] = await SETTINGS.Get([UPDATE_INTERVAL_KEY, LAST_UPDATE_KEY]) // yes the semicolon is required here
 		//console.log(updateInterval, lastUpdate)
-    }
+	}
 	const countdown = updateInterval + (lastUpdate ?? Number.NEGATIVE_INFINITY) - Date.now()
 	//console.debug(updateInterval, lastUpdate, countdown)
-    let opts = {
+	let opts = {
 		"periodInMinutes": updateInterval / 60000,
 		"delayInMinutes" : countdown > 0 ? countdown / 60000 : 0.5 // 0.5 is the minimum I can set it to
 	}
-    console.debug("Creating Alarm:", opts)
-    Browser.CreateAlarm(UPDATE_STREAMS_ID, opts) // clears itself
+	console.debug("Creating Alarm:", opts)
+	Browser.CreateAlarm(UPDATE_STREAMS_ID, opts) // clears itself
 }
 
 async function UpdateBadge(streams=null, errs=null){
@@ -66,8 +66,8 @@ async function UpdateBadge(streams=null, errs=null){
 async function UpdateCurrentStreamers(){
 	console.log("Starting lock behaviour")
 	const now = Date.now()
-    const [updateInterval, lastUpdate] = await SETTINGS.Get([UPDATE_INTERVAL_KEY, LAST_UPDATE_KEY])
-    if(lastUpdate == null || now > lastUpdate + updateInterval){
+	const [updateInterval, lastUpdate] = await SETTINGS.Get([UPDATE_INTERVAL_KEY, LAST_UPDATE_KEY])
+	if(lastUpdate == null || now > lastUpdate + updateInterval){
 		await StreamsService.FetchStreams()
 		await SETTINGS.Set(LAST_UPDATE_KEY, now)
 	}else{

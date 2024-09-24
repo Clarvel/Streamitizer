@@ -23,7 +23,7 @@
 		"open_in_tab": false
 	},
 	"icons": {
-        "128":"icons/icon.png"
+	   "128":"icons/icon.png"
 	},
 	"background":{
 		"service_worker":"background.js",

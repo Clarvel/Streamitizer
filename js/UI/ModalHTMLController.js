@@ -10,31 +10,31 @@ const SECONDARY_BUTTON = document.getElementById("modalClose")
 let CALLBACK = null
 
 async function ModalCallback(evt, wasAccepted){
-    if(CALLBACK){
-        PRIMARY_BUTTON.setAttribute("disabled", "")
-        SECONDARY_BUTTON.setAttribute("disabled", "")
-        try{
-            await CALLBACK(evt, wasAccepted)
-        }catch(e){
-            console.warn(e)
-            BASE_ELEM.addEventListener("hidden.bs.modal", () => DisplayErrorModal(e.message), {once:true}) // wait for modal to fade
-        }
-    }
-    BOOTSTRAP.hide()
+	if(CALLBACK){
+		PRIMARY_BUTTON.setAttribute("disabled", "")
+		SECONDARY_BUTTON.setAttribute("disabled", "")
+		try{
+			await CALLBACK(evt, wasAccepted)
+		}catch(e){
+			console.warn(e)
+			BASE_ELEM.addEventListener("hidden.bs.modal", () => DisplayErrorModal(e.message), {once:true}) // wait for modal to fade
+		}
+	}
+	BOOTSTRAP.hide()
 }
 
 export async function DisplayModal(title, primaryButton, message=null, secondaryButton=null, callback=null){
-    CALLBACK = callback
-    PRIMARY_BUTTON.removeAttribute("disabled")
-    SECONDARY_BUTTON.removeAttribute("disabled")
+	CALLBACK = callback
+	PRIMARY_BUTTON.removeAttribute("disabled")
+	SECONDARY_BUTTON.removeAttribute("disabled")
 
-    await PromiseAll([[TITLE_ELEM, title], [BODY_ELEM, message], [PRIMARY_BUTTON, primaryButton], [SECONDARY_BUTTON, secondaryButton]].map(async ([elem, promise])=>{
-        const content = await promise
-        elem.style.display = content ? null : "none"
-        SetElemOrString(elem, content ?? "")
-    }))
+	await PromiseAll([[TITLE_ELEM, title], [BODY_ELEM, message], [PRIMARY_BUTTON, primaryButton], [SECONDARY_BUTTON, secondaryButton]].map(async ([elem, promise])=>{
+		const content = await promise
+		elem.style.display = content ? null : "none"
+		SetElemOrString(elem, content ?? "")
+	}))
 
-    BOOTSTRAP.show()
+	BOOTSTRAP.show()
 }
 
 export const DisplayErrorModal = async (message, callback=null) => DisplayModal(GetI18nText("error"), GetI18nText("ok"), message, null, callback)

@@ -3,15 +3,15 @@ import { Provider } from "../provider.js"
 import { WebRequest } from "../webRequest.js"
 
 export class Twitch extends Provider(OAuth2PKCEAuth){    
-    Payload(auth){
+	Payload(auth){
 		return {headers:{"authorization":`${"Bearer"} ${auth["access_token"]}`, "client-id":this.ClientID}} // twitch returns lowercase 'bearer' but expects uppercase :/
 	}
-    async GetUIDAndName(auth){
-        var userData = (await WebRequest.GET("https://api.twitch.tv/helix/users", this.Payload(auth)))["data"][0]
+	async GetUIDAndName(auth){
+		var userData = (await WebRequest.GET("https://api.twitch.tv/helix/users", this.Payload(auth)))["data"][0]
 		return [userData["id"], userData["display_name"]] // or "login"
-    }
-    async FetchStreams(auth, UID){
-        const opts = this.Payload(auth)
+	}
+	async FetchStreams(auth, UID){
+		const opts = this.Payload(auth)
 		const streams = (await WebRequest.GET("https://api.twitch.tv/helix/streams/followed?user_id="+UID, opts))["data"]
 
 		// TODO: the maximum I can ask for is 100 per call
@@ -25,5 +25,5 @@ export class Twitch extends Provider(OAuth2PKCEAuth){
 			imgDict[s["user_id"]],
 			s["title"].trim()
 		])
-    }
+	}
 }

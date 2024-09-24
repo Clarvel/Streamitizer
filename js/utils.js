@@ -208,7 +208,7 @@ export function GetElemValue(elem){
 			break
 		case "SELECT":
 			return _getIntOrStrFromStr(elem.options[elem.selectedIndex].value)
-	}		
+	}
 	throw Error("Unknown Element type: " + elem)
 }
 
@@ -227,7 +227,7 @@ export function SetElemValue(elem, value){
 				default:
 					return elem.value = value
 			}
-	}		
+	}
 	throw Error("Unknown Element type: " + elem)
 }
 
@@ -285,15 +285,15 @@ export async function ConsolidatePaginated(asyncFunc, filter=undefined, pageNum=
 }
 
 export function TrimChars(str, chars) {
-    let start = 0, end = str.length
+	let start = 0, end = str.length
 
-    while(start < end && chars.indexOf(str[start]) >= 0)
-        ++start
+	while(start < end && chars.indexOf(str[start]) >= 0)
+		++start
 
-    while(end > start && chars.indexOf(str[end - 1]) >= 0)
-        --end
+	while(end > start && chars.indexOf(str[end - 1]) >= 0)
+		--end
 
-    return (start > 0 || end < str.length) ? str.substring(start, end) : str
+	return (start > 0 || end < str.length) ? str.substring(start, end) : str
 }
 
 export function MixWith(base, ...classes){
