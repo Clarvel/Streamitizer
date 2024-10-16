@@ -2,7 +2,7 @@ import { PROVIDER_TYPES, StreamsService } from "../streamsService.js"
 import { Browser } from "../browser.js"
 import { LoadI18nTextToElem, SetElemValue, GetElemValue, GetSelectOption, Clamp, GetI18nText } from "../utils.js"
 import { Settings, MetadataSettings } from "../settings.js"
-import { DisplayErrorModal, DisplayModal } from "./ModalHTMLController.js"
+import { DisplayErrorModal, DisplayModal } from "./modalController.js"
 import { CLIENTS_KEY, DEFAULT, THEME } from "../IDs.js"
 
 const OPTIONS_CONTAINER = document.getElementById("optionsContainer")
