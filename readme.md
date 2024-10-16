@@ -7,7 +7,6 @@
 
 ## TODO: Known Issues
 * Youtube does not utilize an API and is dependent on HTML scraping
-* Twitch and Picarto aren't setup to redirect properly in Firefox, as they need new client id/secret setup
 * bootstrap has generated warnings
 
 options can be disabled by adding `"disabled":true` to the relevant section of `options.json`
