@@ -1,7 +1,7 @@
 import { Authentication } from "../authentication.js"
 import { Browser } from "../browser.js"
 import { DecodeUriQuery, EncodeDataURL } from "../utils.js"
-import { WebRequest } from "../webRequest.js"
+import { WebRequest } from "../WebRequest.js"
 
 const GenerateChallenge = () => String.fromCharCode(...crypto.getRandomValues(new Uint8Array(Math.round(43 + crypto.getRandomValues(new Uint8Array(1))[0]/3))).map(c => Math.floor(c * 66 / 256)).map(c => c + (c < 38 ? (c > 11 ? 53 : (c > 1 ? 46 : 45)) : (c < 65 ? (c > 38 ? 58 : 57) : 61))))	// generate code verifier: get a random 0-255 uint, use that to get a random range of 0-255 uints, 43-128 uints long, convert from 0-255 -> 0-66, convert from 0-66 -> ASCii char code range
 

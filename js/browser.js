@@ -104,8 +104,8 @@ export class Browser{
 	static SetBadgeColor(color){browser.action.setBadgeBackgroundColor({"color":color})}
 	static OpenOptionsPage(){return browser.runtime.openOptionsPage()}
 
-	// https://cmnfbkpodnopafgnlicpjjnpcgdlclde.chromiumapp.org
-	static ExtensionRedirectURI = () => TrimChars(browser.identity.getRedirectURL(), "/")
+	// https://cmnfbkpodnopafgnlicpjjnpcgdlclde.chromiumapp.org/
+	static ExtensionRedirectURI = browser.identity.getRedirectURL
 
 	/**
 	 * 

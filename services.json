@@ -1,7 +1,7 @@
 {
 	"picarto":{
 		"Site": "https://picarto.tv",
-		"ClientID": "68cb4df3-ea56-4168-a402-f366fa3cdef9",
+		"ClientID": "594d822e-d09a-40e3-8026-8b24695a20a8",
 		"AuthenticationAPI": "https://oauth.picarto.tv/authorize",
 		"TokenAPI": "https://oauth.picarto.tv/token",
 		"Scopes": ["readpriv", "readpub"]
@@ -13,7 +13,7 @@
 	},
 	"twitch":{
 		"Site": "https://twitch.tv",
-		"ClientID": "eq1wpnbv4jmkq48g9v1bsepfvoh4ou",
+		"ClientID": "dtv6kthgiel4kqfrnaqmtlgig7xztj",
 		"AuthenticationAPI": "https://id.twitch.tv/oauth2/authorize",
 		"Scopes": ["user:read:follows"],
 		"PKCE": false
