@@ -8,6 +8,8 @@
 ## TODO: Known Issues
 * Youtube does not utilize an API and is dependent on HTML scraping
 * bootstrap has generated warnings
+* adding multiple picarto accounts doesn't work - keeps trying to use the existing account
+* no refresh when perms expire?
 
 options can be disabled by adding `"disabled":true` to the relevant section of `options.json`
 
