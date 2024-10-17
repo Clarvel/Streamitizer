@@ -1,13 +1,12 @@
 {
 	"name": "StreamWatcher",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"manifest_version": 3,
 	"default_locale":"en",
 	"permissions": [
 		"alarms",
 		"storage",
 		"identity",
-		"idle",
 		"notifications",
 		"cookies",
 		"tabs"

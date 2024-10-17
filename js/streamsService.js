@@ -16,7 +16,7 @@ const PROVIDERS = {
 	"youtube": Youtube*/
 }
 
-export const FlatClientsData = (obj = {}) => Object.values(obj).flatMap(clients => Object.values(clients).flatMap(data => Object.values(data)))
+export const FlatClientsData = obj => obj ? Object.values(obj).flatMap(clients => Object.values(clients).flatMap(data => Object.values(data))) : []
 
 export const PROVIDER_TYPES = () => Object.keys(PROVIDERS)
 
