@@ -12,8 +12,8 @@ const SETTINGS = new Settings()
 const PROVIDERS = {
 	"picarto": Picarto,
 	"piczel": Piczel,
-	"twitch": Twitch/*,
-	"youtube": Youtube*/
+	"twitch": Twitch,
+	"youtube": Youtube
 }
 
 export const FlatClientsData = obj => obj ? Object.values(obj).flatMap(clients => Object.values(clients).flatMap(data => Object.values(data))) : []
