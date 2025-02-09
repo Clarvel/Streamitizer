@@ -94,10 +94,15 @@ async function OnStorageStateChanged(changes){
 	}
 }
 
+function RuntimeSetup(){
+	UpdateAlarm() // ensure alarm exists
+	UpdateBadge()
+}
+
 // alarms/event handlers MUST be set here, not encapsulated by anything
 SETTINGS.OnUpdate(OnStorageChanged)
 Browser.OnStorageStateChanged(OnStorageStateChanged)
 Browser.OnAlarm(OnAlarm)
 Browser.OnNotificationClicked(Browser.OpenInNewTab)
-UpdateAlarm() // ensure alarm exists
-UpdateBadge()
+Browser.OnInstalled(RuntimeSetup)
+RuntimeSetup()
