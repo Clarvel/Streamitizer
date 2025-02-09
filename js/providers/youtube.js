@@ -1,27 +1,33 @@
-import { NoAuth } from "../authTypes/noAuth.js"
+import { OAuth2PKCEAuth } from "../authTypes/OAuth2PKCEAuth.js"
 import { Provider } from "../provider.js"
+import { AsyncFilter } from "../utils.js"
+import { WebRequest } from "../webRequest.js"
 
-export class Youtube extends Provider(NoAuth){    
+export class Youtube extends Provider(OAuth2PKCEAuth){
+	Payload(auth){
+		return {headers:{"authorization":`${auth["token_type"] ?? "Bearer"} ${auth["access_token"]}`}}
+	}
+
 	async GetUIDAndName(auth){
-		const username = "[CurrentUser]" //(await (await fetch("https://www.youtube.com/account")).text()).match(/"name" ?: ?"(.+?)"/)?.[1]
-		console.debug(username)
-		return [username, username]
+		var userData = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", this.Payload(auth)))["items"][0]
+		return [userData["id"], userData["snippet"]["title"]]
 	}
 
 	async FetchStreams(auth, UID){
-		let json = JSON.parse((await (await fetch("https://www.youtube.com/feed/subscriptions")).text()).match(/var ytInitialData = ({.+?});/)?.[1])
-		console.debug(json)
-		json = json?.["contents"]?.["twoColumnBrowseResultsRenderer"]?.["tabs"]?.[0]?.["tabRenderer"]?.["content"]
-		?.["richGridRenderer"]?.["contents"]?.map(i=>i["richItemRenderer"]?.["content"]?.["videoRenderer"]).filter(i=>i?.["badges"]?.[0]?.["metadataBadgeRenderer"]?.["label"] === "LIVE")
-		let streams = json?.map(i=>{
-			return [
-				i["ownerText"]["runs"][0]["text"],
-				"https://youtube.com/watch?v=" + i["videoId"],
-				i["avatar"]["decoratedAvatarViewModel"]["avatar"]["avatarViewModel"]["image"]["sources"][0]["url"],
-				i["title"]["runs"][0]["text"].trim()
-			]
-		}) ?? []
-		console.debug(streams)
+		const re = /<meta (?:itemprop="datePublished" content="(.+?)"|content="(.+?)" itemprop="datePublished")>/
+		const snippets = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,subscriberSnippet&mine=true&order=unread&maxResults=50", this.Payload(auth)))["items"].map(s=>s["snippet"])
+		const filtered = await AsyncFilter(snippets, async s => {
+			const url = s["_url"] = `https://www.youtube.com/${s["channelId"]}/live` // this doesn't work ;_;
+			const dateStr = re.exec((await fetch(url)))
+			return dateStr && Date.parse(dateStr) <= Date.now()
+		})
+		const streams = filtered.map(s=>[
+			s["channelTitle"],
+			s["_url"],
+			s["thumbnails"]["default"]["url"],
+			s["title"]
+		])
+		console.log(snippets, filtered, streams)
 		return streams
 	}
 }
