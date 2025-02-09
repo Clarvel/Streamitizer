@@ -82,7 +82,7 @@ export class Browser{
 		"message":message
 	}).catch(console.warn)
 
-	static OnInstalled = func => browser.runtime.OnInstalled.addListener(func)
+	static OnInstalled = func => browser.runtime.onInstalled.addListener(func)
 
 	/**
 	 * @param {string} encodedURL 
