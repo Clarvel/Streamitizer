@@ -9,23 +9,25 @@ export class Youtube extends Provider(OAuth2PKCEAuth){
 	}
 
 	async GetUIDAndName(auth){
-		var userData = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", this.Payload(auth)))["items"][0]
+		var userData = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&fields=items(id,snippet/title)", this.Payload(auth)))["items"][0]
 		return [userData["id"], userData["snippet"]["title"]]
 	}
 
 	async FetchStreams(auth, UID){
-		const re = /<meta (?:itemprop="datePublished" content="(.+?)"|content="(.+?)" itemprop="datePublished")>/
-		const snippets = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/subscriptions?part=snippet,subscriberSnippet&mine=true&order=unread&maxResults=50", this.Payload(auth)))["items"].map(s=>s["snippet"])
+		const snippets = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=unread&maxResults=50&fields=items(snippet(title,resourceId/channelId,thumbnails/default/url))", this.Payload(auth)))["items"].map(s=>s["snippet"])
 		const filtered = await AsyncFilter(snippets, async s => {
-			const url = s["_url"] = `https://www.youtube.com/${s["channelId"]}/live` // this doesn't work ;_;
-			const dateStr = re.exec((await fetch(url)))
+			const url = s["_url"] = `https://www.youtube.com/channel/${s["resourceId"]["channelId"]}/live`
+			const metadata = Object.fromEntries((await fetch(url).then(r=>r.text())).matchAll(/<meta (\w+?)="(.*?)" (\w+?)="(.*?)">/).map(m=>[m[m.indexOf("itemprop")+1], m[m.indexOf("content")+1]]))
+
+			const dateStr = metadata["datePublished"]
+			s["_desc"] = metadata["name"]
 			return dateStr && Date.parse(dateStr) <= Date.now()
 		})
 		const streams = filtered.map(s=>[
-			s["channelTitle"],
+			s["title"],
 			s["_url"],
 			s["thumbnails"]["default"]["url"],
-			s["title"]
+			s["_desc"].trim()
 		])
 		console.log(snippets, filtered, streams)
 		return streams
