@@ -103,26 +103,26 @@ export class StreamsService{
 				try{
 					return await client.FetchStreams(auth, UID)
 				}catch(e){
-					if(e instanceof TypeError)
-						throw e// likely means network disconnected, so discard results
-					try{ // if it wasn't a TypeError, it was likely an auth error, so try to re-auth
-						auth = await client.Refresh(auth)
-						let [newUID, newName] = await client.GetUIDAndName(auth)
-						if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
-						await SETTINGS.Modify(CLIENTS_KEY, providers => {
-							providers[provider][UID] = [auth, newName]
-							return providers
-						}) // update auth info
+					if(!(e instanceof TypeError)){ // typeError likely means network disconnected, don't try reconnecting
+						try{ // if it wasn't a TypeError, it was likely an auth error, so try to re-auth
+							auth = await client.Refresh(auth)
+							let [newUID, newName] = await client.GetUIDAndName(auth)
+							if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
+							await SETTINGS.Modify(CLIENTS_KEY, providers => {
+								providers[provider][UID] = [auth, newName]
+								return providers
+							}) // update auth info
 
-						return await client.FetchStreams(auth, UID)
-					}catch(e1){
-						console.log(e, e1)
-						hasErr = true
-						const err = e.toString()
-						const errsObj = (errs[provider] ??= {})[UID] ??= {}
-						errsObj[err] = (errsObj[err] ?? 0) + 1
-						return []
+							return await client.FetchStreams(auth, UID)
+						}catch(e1){
+							console.log(e, e1)
+							hasErr = true
+							const err = e.toString()
+							const errsObj = (errs[provider] ??= {})[UID] ??= {}
+							errsObj[err] = (errsObj[err] ?? 0) + 1
+						}
 					}
+					return []
 				}
 			})
 		}).then(cache => {
