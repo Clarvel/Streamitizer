@@ -19,6 +19,7 @@
 		"PKCE": false
 	},
 	"youtube":{
-		"Site": "https://youtube.com"
+		"Site": "https://youtube.com",
+		"Disabled": true
 	}
 }
