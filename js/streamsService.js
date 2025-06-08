@@ -18,7 +18,10 @@ const PROVIDERS = {
 
 export const FlatClientsData = obj => obj ? Object.values(obj).flatMap(clients => Object.values(clients).flatMap(data => Object.values(data))) : []
 
-export const PROVIDER_TYPES = () => Object.keys(PROVIDERS)
+export async function PROVIDER_TYPES(){
+	const metadata = await METADATA
+	return Object.keys(PROVIDERS).filter(provider => metadata[provider] && !metadata[provider]["Disabled"])
+}
 
 export class StreamsService{
 	static async GetClientNames(){
@@ -52,7 +55,7 @@ export class StreamsService{
 
 		const client = new type(config)
 		const auth = await client.Authenticate(true)
-		
+
 		const [UID, name] = await client.GetUIDAndName(auth)
 		await SETTINGS.Modify(CLIENTS_KEY, (providers={}) => {
 			if(providers[provider]?.[UID] != null)
@@ -100,30 +103,34 @@ export class StreamsService{
 		return ObjAVMap(providers ?? {}, async (provider, clients) => {
 			const client = new PROVIDERS[provider](metadata[provider])
 			return ObjAVMap(clients, async (UID, [auth, name]) => {
-				try{
-					return await client.FetchStreams(auth, UID)
-				}catch(e){
-					if(e instanceof TypeError)
-						throw e// likely means network disconnected, so discard results
-					try{ // if it wasn't a TypeError, it was likely an auth error, so try to re-auth
-						auth = await client.Refresh(auth)
-						let [newUID, newName] = await client.GetUIDAndName(auth)
-						if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
-						await SETTINGS.Modify(CLIENTS_KEY, providers => {
-							providers[provider][UID] = [auth, newName]
-							return providers
-						}) // update auth info
-
+				if(Object.keys(errs[provider]?.[UID] ?? {}) = null){ // if an error exists for this client, don't fetch
+					try{
 						return await client.FetchStreams(auth, UID)
-					}catch(e1){
-						console.log(e, e1)
+					}catch(e){
+						if(e instanceof TypeError || (600 > e.cause && e.cause >= 500))
+							throw e // likely means network disconnected, so discard ALL results
+						if(e.cause === 401){
+							try{
+								auth = await client.Refresh(auth)
+								let [newUID, newName] = await client.GetUIDAndName(auth)
+								if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
+								await SETTINGS.Modify(CLIENTS_KEY, providers => {
+									providers[provider][UID] = [auth, newName]
+									return providers
+								}) // update auth info
+
+								return await client.FetchStreams(auth, UID)
+							}catch(e1){
+								console.warn(e, e1)
+							}
+						}
+						const errMsg = e.cause + e.toString()
 						hasErr = true
-						const err = e.toString()
 						const errsObj = (errs[provider] ??= {})[UID] ??= {}
-						errsObj[err] = (errsObj[err] ?? 0) + 1
-						return []
+						errsObj[errMsg] = (errsObj[errMsg] ?? 0) + 1
 					}
 				}
+				return []
 			})
 		}).then(cache => {
 			console.debug(cache, errs)

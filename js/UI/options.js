@@ -137,7 +137,7 @@ async function LoadClientsContainer(){
 				clientElem.querySelector(`.errors`).classList.remove("d-none")
 				clientElem.querySelector(".errors").append(...Object.entries(errs).map(([message, count])=>{
 					const el = document.importNode(ERROR_TEMPLATE, true)
-					el.querySelector(".desc").textContent = message
+					el.querySelector(".desc").textContent = message//.slice(0, 3)
 					el.querySelector(".count").textContent = count
 					el.querySelector(".remove").addEventListener("click", async (e)=>{
 						e.stopPropagation();
@@ -217,7 +217,7 @@ window.onload = async ()=>{
 	LoadOptionsContainer()
 	LoadClientsContainer()
 
-	for(const provider of PROVIDER_TYPES()){ // setup the dropdown with available service types
+	for(const provider of await PROVIDER_TYPES()){ // setup the dropdown with available service types
 		const elem = document.createElement("option")
 		LoadI18nTextToElem(elem, provider) // dont care when this completes
 		elem.value = provider
