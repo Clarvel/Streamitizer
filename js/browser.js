@@ -62,6 +62,16 @@ export class Browser{
 	}
 	static OnStorageStateChanged = func => browser.storage.onChanged.addListener(func)
 
+	static async UniqueId(){
+		const key = "UNIQUE_ID"
+		let id = await this.GetStorage(key, false).then(o => o[key])
+		if(!id){
+			id = crypto.randomUUID()
+			await this.SetStorage({[key]:id})
+		}
+		return id
+	}
+
 	static OnNotificationClicked = func => browser.notifications.onClicked.addListener(func)
 	static ClearNotification = id => browser.notifications.clear(id).then(response => {
 		if(!response)
@@ -152,5 +162,5 @@ export class Browser{
 	static GetAlarm(name){return browser.alarms.get(name)}
 	static CreateAlarm(name, opts){return browser.alarms.create(name, opts)}
 	static OnAlarm(func){return browser.alarms.onAlarm.addListener(func)}
-
+	
 }
