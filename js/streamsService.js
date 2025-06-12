@@ -96,7 +96,7 @@ export class StreamsService{
 		return ObjAVMap(providers ?? {}, async (provider, clients) => {
 			const client = new PROVIDERS[provider](metadata[provider])
 			return ObjAVMap(clients, async (UID, [auth, name]) => {
-				if(Object.keys(errs[provider]?.[UID] ?? {}).length > 0){ // if an error exists for this client, don't fetch
+				if(Object.keys(errs[provider]?.[UID] ?? {}).length <= 0){ // if an error exists for this client, don't fetch
 					try{
 						return await client.FetchStreams(auth, UID)
 					}catch(e){

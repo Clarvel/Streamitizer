@@ -1,6 +1,6 @@
 {
 	"name": "StreamWatcher",
-	"version": "1.0.13",
+	"version": "1.0.15",
 	"manifest_version": 3,
 	"default_locale":"en",
 	"permissions": [
