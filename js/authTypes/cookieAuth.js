@@ -8,7 +8,7 @@ export class CookieAuth extends Authentication{
 		this._CookieName = CookieName
 	}
 
-	async Authenticate(manuallyTriggered=false){
+	async Authenticate(manuallyTriggered=false, request={}){
 		let cookie = await Browser.GetCookie(this._CookieDomain, this._CookieName)
 		if(cookie == null)
 			throw Error(`Could not find cookie at ${this._CookieDomain} with name ${this._CookieName}`)
