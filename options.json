@@ -21,6 +21,9 @@
 	"consolidate":{
 		"value":true
 	},
+	"hideZero":{
+		"value":false
+	},
 	"theme":{
 		"value":"system",
 		"options":[

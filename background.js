@@ -1,5 +1,5 @@
 import { Browser } from "./js/browser.js"
-import { CACHE_KEY, CONSOLIDATE, ERRS_KEY, LAST_UPDATE_KEY, MULTIPLE_NOTIFICATIONS as MULTIPLE_NOTIFS_ID, NOTIFICATIONS, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
+import { CACHE_KEY, CONSOLIDATE, ERRS_KEY, LAST_UPDATE_KEY, MULTIPLE_NOTIFS_ID, NOTIFICATIONS, HIDEZERO, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
 import { MetadataSettings } from "./js/settings.js"
 import { StreamsService, FlatClientsData } from "./js/streamsService.js"
 import { GetI18nText } from "./js/utils.js"
@@ -53,7 +53,7 @@ async function UpdateBadge(streams=null, errs=null){
 	const errsCount = await StreamsService.ErrsCount(errs)
 
 	let title = [await GetI18nText(streamCount === 1 ? "currentStream" : "currentStreams", [streamCount])]
-	if(streamCount == 0) streamCount = ""
+	if(streamCount == 0 && (await SETTINGS.GetSingle(HIDEZERO))) streamCount = ""
 	if(errsCount > 0){
 		streamCount += "⚠" // don't acc account errors number to save space
 		title.push(await GetI18nText(errsCount === 1 ? "currentError" : "currentErrors", [errsCount]))

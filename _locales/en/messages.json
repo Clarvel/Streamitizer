@@ -9,6 +9,7 @@
 	"descSpeed":{"message":"Description Scroll\u00a0Speed"},
 	"notifications":{"message":"Send Desktop Notifications"},
 	"consolidate":{"message":"Combine Multiple Notifications"},
+	"hideZero":{"message":"Hide Badge if no Streams"},
 	"theme":{"message":"Theme"},
 	"themeSystem":{"message":"System Default"},
 	"themeLight":{"message":"Light Theme"},
