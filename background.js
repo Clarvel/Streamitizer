@@ -1,5 +1,5 @@
 import { Browser } from "./js/browser.js"
-import { CACHE_KEY, ERRS_KEY, LAST_UPDATE_KEY, NOTIFICATIONS, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
+import { CACHE_KEY, CONSOLIDATE, ERRS_KEY, LAST_UPDATE_KEY, MULTIPLE_NOTIFICATIONS as MULTIPLE_NOTIFS_ID, NOTIFICATIONS, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
 import { MetadataSettings } from "./js/settings.js"
 import { StreamsService, FlatClientsData } from "./js/streamsService.js"
 import { GetI18nText } from "./js/utils.js"
@@ -85,10 +85,11 @@ async function OnStorageStateChanged(changes){
 				if(await SETTINGS.GetSingle(NOTIFICATIONS)){
 					// want to find all NEW entries, so all n not in o
 					const existing = FlatClientsData(v["oldValue"]).map(([name, link, icon, desc]) => name)
-					FlatClientsData(v["newValue"]).map(([name, link, icon, desc]) => {
-						if(!existing.includes(name))
-							Browser.CreateNotification(link, name, desc, icon)
-					})
+					const newEntries = FlatClientsData(v["newValue"]).filter(([name, link, icon, desc]) => !existing.includes(name))
+					if(newEntries > 1 && await SETTINGS.GetSingle(CONSOLIDATE))
+						Browser.CreateNotification(MULTIPLE_NOTIFS_ID, "Multiple new Streams!", "")
+					else
+						newEntries.forEach(([name, link, icon, desc]) => Browser.CreateNotification(link, name, desc, icon))
 				}
 		}
 	}
@@ -103,6 +104,6 @@ function RuntimeSetup(){
 SETTINGS.OnUpdate(OnStorageChanged)
 Browser.OnStorageStateChanged(OnStorageStateChanged)
 Browser.OnAlarm(OnAlarm)
-Browser.OnNotificationClicked(Browser.OpenInNewTab)
+Browser.OnNotificationClicked((id) => id === MULTIPLE_NOTIFS_ID ? Browser.OpenPopup() : Browser.OpenInNewTab(id))
 Browser.OnInstalled(RuntimeSetup)
 RuntimeSetup()

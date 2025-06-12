@@ -10,3 +10,6 @@ export const DEFAULT = "value"
 export const THEME = "theme"
 export const DESC_SPEED = "descSpeed"
 export const NOTIFICATIONS = "notifications"
+export const CONSOLIDATE = "consolidate"
+
+export const MULTIPLE_NOTIFS_ID = "multiple"
