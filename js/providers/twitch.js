@@ -6,6 +6,11 @@ export class Twitch extends Provider(OAuth2PKCEAuth){
 	Payload(auth){
 		return {headers:{"authorization":`${"Bearer"} ${auth["access_token"]}`, "client-id":this.ClientID}} // twitch returns lowercase 'bearer' but expects uppercase :/
 	}
+	async Authenticate(manuallyTriggered=false, request={}){
+		if(manuallyTriggered)
+			request["force_verify"] = true
+		return super.Authenticate(manuallyTriggered, request)
+	}
 	async GetUIDAndName(auth){
 		var userData = (await WebRequest.GET("https://api.twitch.tv/helix/users", this.Payload(auth)))["data"][0]
 		return [userData["id"], userData["display_name"]] // or "login"

@@ -1,5 +1,5 @@
 import { Config, Settings } from "./settings.js"
-import { ObjVMap, ObjAVMap } from "./utils.js"
+import { ObjVMap, ObjAVMap, DeleteNested } from "./utils.js"
 import { Picarto } from "./providers/picarto.js"
 import { Piczel } from "./providers/piczel.js"
 import { Twitch } from "./providers/twitch.js"
@@ -39,9 +39,9 @@ export class StreamsService{
 			const msgs = Object.keys(errs?.[provider]?.[UID] ?? {})
 			if(msgs.includes(message))
 				if(msgs.length === 1)
-				delete errs[provider][UID]
+					delete errs[provider][UID]
 				else 
-				delete errs[provider][UID][message]
+					delete errs[provider][UID][message]
 			console.log(provider, UID, message, errs)
 			return errs
 		})
@@ -60,37 +60,30 @@ export class StreamsService{
 		await SETTINGS.Modify(CLIENTS_KEY, (providers={}) => {
 			if(providers[provider]?.[UID] != null)
 				if(isNew)
-				throw Error(`Already connected to ${name} account`)
+					throw Error(`Already connected to ${name} account`)
 			else if(!isNew)
 				throw Error(`Re-connection does not match any known account`)
 			;(providers[provider]??={})[UID] = [auth, name] // semicolon required here
 			console.log(providers)
 			return providers
 		}) // auth info saved here
-		await SETTINGS.Modify(CACHE_KEY, async (cache={}) => {
-			;(cache[provider]??={})[UID] = await client.FetchStreams(auth, UID)
-			console.log(cache)
-			return cache
-		}) // stream cache saved here
+		return Promise.all([
+			SETTINGS.Modify(CACHE_KEY, async (cache={}) => {
+				;(cache[provider]??={})[UID] = await client.FetchStreams(auth, UID)
+				console.log(cache)
+				return cache
+			}), // stream cache saved here
+			SETTINGS.Modify(ERRS_KEY, o => DeleteNested(o, provider, UID)) // delete any existing errors
+		])
 	}
 
 	static async Delete(provider, UID){
 		if((await METADATA)?.[provider] == null)
 			throw Error(`Unrecognized [${provider}] Type.`)
-		const delFunc = (o) => {
-			const UIDs = Object.keys(o?.[provider] ?? {})
-			if(UIDs.includes(UID)){
-				if(UIDs.length === 1)
-				delete o[provider]
-				else 
-				delete o[provider][UID]
-			}
-			return o
-		}
 		return Promise.all([
-			SETTINGS.Modify(CLIENTS_KEY, delFunc), // delete auth info
-			SETTINGS.Modify(ERRS_KEY, delFunc), // delete errors
-			SETTINGS.Modify(CACHE_KEY, delFunc) // delete cached streams
+			SETTINGS.Modify(CLIENTS_KEY, o => DeleteNested(o, provider, UID)), // delete auth info
+			SETTINGS.Modify(ERRS_KEY, o => DeleteNested(o, provider, UID)), // delete errors
+			SETTINGS.Modify(CACHE_KEY, o => DeleteNested(o, provider, UID)) // delete cached streams
 		])
 	}
 
@@ -103,7 +96,7 @@ export class StreamsService{
 		return ObjAVMap(providers ?? {}, async (provider, clients) => {
 			const client = new PROVIDERS[provider](metadata[provider])
 			return ObjAVMap(clients, async (UID, [auth, name]) => {
-				if(Object.keys(errs[provider]?.[UID] ?? {}) = null){ // if an error exists for this client, don't fetch
+				if(Object.keys(errs[provider]?.[UID] ?? {}) == null){ // if an error exists for this client, don't fetch
 					try{
 						return await client.FetchStreams(auth, UID)
 					}catch(e){
