@@ -299,3 +299,21 @@ export function TrimChars(str, chars) {
 export function MixWith(base, ...classes){
 	return classes.reduce((c, m) => m(c), base)
 }
+
+export function IsObj(o){return o != null && o.constructor.name === "Object"}
+
+export function DeleteNested(obj, ...keys){
+	const oks = []
+	let o = obj, k
+	for(k of keys){
+		if(!(IsObj(o) && k in o))
+			return obj
+		oks.unshift([o, k])
+		o = o[k]
+	}
+	for([o, k] of oks)
+		if(Object.keys(o).length > 1)
+			break
+	delete o[k]
+	return obj
+}
