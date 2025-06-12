@@ -86,7 +86,7 @@ async function OnStorageStateChanged(changes){
 					// want to find all NEW entries, so all n not in o
 					const existing = FlatClientsData(v["oldValue"]).map(([name, link, icon, desc]) => name)
 					const newEntries = FlatClientsData(v["newValue"]).filter(([name, link, icon, desc]) => !existing.includes(name))
-					if(newEntries > 1 && await SETTINGS.GetSingle(CONSOLIDATE))
+					if(newEntries.length > 1 && await SETTINGS.GetSingle(CONSOLIDATE))
 						Browser.CreateNotification(MULTIPLE_NOTIFS_ID, "Multiple new Streams!", "")
 					else
 						newEntries.forEach(([name, link, icon, desc]) => Browser.CreateNotification(link, name, desc, icon))
