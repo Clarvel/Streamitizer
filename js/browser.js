@@ -13,6 +13,7 @@ export class Browser{
 	}
 
 	static OpenInNewTab = url => browser.tabs.create({"url":url})
+	static OpenPopup = () => chrome ? browser.action.openPopup() : browser.browserAction.openPopup()
 
 	/**
 	 * @param {object} data

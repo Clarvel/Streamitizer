@@ -18,6 +18,9 @@
 	"notifications":{
 		"value":true
 	},
+	"consolidate":{
+		"value":true
+	},
 	"theme":{
 		"value":"system",
 		"options":[

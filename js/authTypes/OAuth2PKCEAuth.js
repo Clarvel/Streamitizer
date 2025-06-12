@@ -21,24 +21,22 @@ export class OAuth2PKCEAuth extends Authentication{
 
 	_RefreshAccessToken(payload){return WebRequest.POST(this._tokenURI, {body: payload, headers: {"Content-Type": "application/x-www-form-urlencoded"}})}
 
-	async Authenticate(manuallyTriggered=false){
+	async Authenticate(manuallyTriggered=false, request={}){
 		return this._OAUTH_PROMISE ??= (async () => {
 			//console.log("Initiating OAuth")
 			const verifier = GenerateChallenge()
 			//console.log("Launching Web Auth flow")
-			const request = {
+			request = {...request, ...{
 				"redirect_uri":Browser.ExtensionRedirectURI(),
 				"response_type":this._tokenURI ? "code" : "token", // or "token" for implicit flow
 				"scope":this._scopes.join(' '),
 				"client_id":this.ClientID,
 				"state":verifier // used for self-verification
-			}
+			}}
 			if(this._tokenURI && this._PKCE){
 				request["code_challenge"] = await EncodeVerifier(verifier), // used for server-verificaiton
 				request["code_challenge_method"] = "S256"
 			}
-			if(manuallyTriggered)
-				request["force_verify"] = true
 			const redirectUri = await Browser.LaunchWebAuthFlow(EncodeDataURL(this._authURI, request), manuallyTriggered)
 			//console.log(redirectUri)
 			let query = DecodeUriQuery(redirectUri)
@@ -57,11 +55,11 @@ export class OAuth2PKCEAuth extends Authentication{
 		})().finally(() => this._OAUTH_PROMISE = null)
 	}
 
-	async Refresh(auth){
-		return this._RefreshAccessToken({
+	async Refresh(auth, manuallyTriggered=false, request={}){
+		return this._tokenURI ? this._RefreshAccessToken({...request, ...{
 			"client_id":this.ClientID,
 			"grant_type":"refresh_token",
 			"refresh_token":auth["refresh_token"] ?? auth["access_token"]
-		})
+		}}) : super.Refresh(auth, manuallyTriggered, request)
 	}
 }

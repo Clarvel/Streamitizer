@@ -1,7 +1,7 @@
 import { NoAuth } from "../authTypes/noAuth.js"
 import { Provider } from "../provider.js"
 
-export class Youtube extends Provider(NoAuth){    
+export class Youtube extends Provider(NoAuth){
 	async GetUIDAndName(auth){
 		const username = "[CurrentUser]" //(await (await fetch("https://www.youtube.com/account")).text()).match(/"name" ?: ?"(.+?)"/)?.[1]
 		console.debug(username)
