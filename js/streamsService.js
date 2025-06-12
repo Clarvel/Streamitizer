@@ -77,6 +77,21 @@ export class StreamsService{
 		])
 	}
 
+	static async Refresh(provider, UID){
+		const providers = await SETTINGS.GetSingle(CLIENTS_KEY)
+		let [auth, name] = providers[provider][UID]
+		const client = new PROVIDERS[provider]((await METADATA)[provider])
+		console.log(auth, await METADATA)
+		auth = await client.Refresh(auth)
+		let [newUID, newName] = await client.GetUIDAndName(auth)
+		if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
+		await SETTINGS.Modify(CLIENTS_KEY, providers => {
+			providers[provider][UID] = [auth, newName]
+			return providers
+		}) // update auth info
+		return auth
+	}
+
 	static async Delete(provider, UID){
 		if((await METADATA)?.[provider] == null)
 			throw Error(`Unrecognized [${provider}] Type.`)
