@@ -132,7 +132,7 @@ async function LoadClientsContainer(){
 			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
 			clientElem.querySelector("label").textContent = name
 			clientElem.querySelector("button.btn-close").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
-			clientElem.querySelector("button.refresh").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Refresh(provider, UID)))
+			clientElem.querySelector("button.refresh").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Refresh(provider, UID, true)))
 			clientElem.querySelector("button.reconnect").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, false)))
 			const errs = errors?.[provider]?.[UID]
 			if(errs != null){

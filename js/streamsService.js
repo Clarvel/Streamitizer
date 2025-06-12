@@ -77,12 +77,12 @@ export class StreamsService{
 		])
 	}
 
-	static async Refresh(provider, UID){
+	static async Refresh(provider, UID, manuallyTriggered=false){
 		const providers = await SETTINGS.GetSingle(CLIENTS_KEY)
 		let [auth, name] = providers[provider][UID]
 		const client = new PROVIDERS[provider]((await METADATA)[provider])
 		console.log(auth, await METADATA)
-		auth = await client.Refresh(auth)
+		auth = await client.Refresh(auth, manuallyTriggered)
 		let [newUID, newName] = await client.GetUIDAndName(auth)
 		if(newUID !== UID) throw Error("UID Mismatch on Re-Auth attempt")
 		await SETTINGS.Modify(CLIENTS_KEY, providers => {
