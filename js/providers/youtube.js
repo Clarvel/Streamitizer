@@ -7,7 +7,12 @@ export class Youtube extends Provider(OAuth2PKCEAuth){
 	Payload(auth){
 		return {headers:{"authorization":`${auth["token_type"] ?? "Bearer"} ${auth["access_token"]}`}}
 	}
-
+	async Authenticate(manuallyTriggered=false, request={}){
+		request["access_type"] = "offline"
+		if(manuallyTriggered)
+			request["prompt"] = "select_account" // TODO: change to "login_hint" once I can get that info!
+		return super.Authenticate(manuallyTriggered, request)
+	}
 	async GetUIDAndName(auth){
 		console.log(auth)
 		var userData = (await WebRequest.GET("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true&fields=items(id,snippet/title)", this.Payload(auth)))["items"][0]

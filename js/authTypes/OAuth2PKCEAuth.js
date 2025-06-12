@@ -37,10 +37,6 @@ export class OAuth2PKCEAuth extends Authentication{
 				request["code_challenge"] = await EncodeVerifier(verifier), // used for server-verificaiton
 				request["code_challenge_method"] = "S256"
 			}
-			if(manuallyTriggered){
-				request["force_verify"] = true
-				request["prompt"] = "consent"
-			}
 			const redirectUri = await Browser.LaunchWebAuthFlow(EncodeDataURL(this._authURI, request), manuallyTriggered)
 			//console.log(redirectUri)
 			let query = DecodeUriQuery(redirectUri)
