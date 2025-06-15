@@ -14,3 +14,4 @@ export const CONSOLIDATE = "consolidate"
 export const HIDEZERO = "hideZero"
 
 export const MULTIPLE_NOTIFS_ID = "multiple"
+export const SERVER_ERR_KEY = "500serverError"

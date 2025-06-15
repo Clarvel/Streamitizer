@@ -111,20 +111,6 @@ export function GroupBy(arr, func){
 
 /**
  * 
- * @param {*} obj 
- * @param {Array<string>} path 
- */
-export function GetValueFromNestedObject(obj, path){
-	for (const name of path) {
-		if(obj == null)
-			break
-		obj = obj?.[name]
-	}
-	return obj
-}
-
-/**
- * 
  * @param {T} templateClass 
  * @param {*} obj 
  * @param {Array<string>} requiredParams
@@ -315,5 +301,23 @@ export function DeleteNested(obj, ...keys){
 		if(Object.keys(o).length > 1)
 			break
 	delete o[k]
+	return obj
+}
+export function IncrementNestedValue(obj, ...keys){
+	const key = keys.pop()
+	if(!key)
+		return
+	for(const k of keys){
+		obj = obj[k] ??= {}
+	}
+	return obj[key] = (obj[key] ?? 0) + 1
+}
+
+export function GetNestedValue(obj, ...keys){
+	for (const k of keys) {
+		if(obj == null)
+			break
+		obj = obj?.[k]
+	}
 	return obj
 }
