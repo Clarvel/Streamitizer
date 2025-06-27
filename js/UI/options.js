@@ -122,7 +122,7 @@ async function LoadOptionsContainer(){
 async function LoadClientsContainer(){
 	const dropdown = ACCOUNTS_CONTAINER.lastElementChild
 	ACCOUNTS_CONTAINER.textContent = ""
-	const reconnectText = GetI18nText(textKey, replacements)
+	const reconnectText = GetI18nText("reconnect")
 	const [accounts, errors] = await Promise.all([StreamsService.GetClientNames(), StreamsService.GetErrors()])
 	ACCOUNTS_CONTAINER.append(...Object.entries(accounts).map(([provider, clients])=>{
 		const providerElem = document.importNode(STREAMTYPE_TEMPLATE, true)
