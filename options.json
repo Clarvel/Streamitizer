@@ -28,7 +28,7 @@
 			4,
 			5
 		],
-		"Disabled":true
+		"disabled":true
 	},
 	"hideZero":{
 		"value":false
