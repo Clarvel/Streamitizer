@@ -49,7 +49,8 @@ export class StreamsService{
 		})
 	}
 
-	static async Create(provider, isNew=true){
+	// existingUID's presence determines if we are reconnecting, or making a new connection. The process is the same
+	static async Create(provider, existingUID=null){
 		const type = PROVIDERS[provider]
 		if(type == null) throw Error(`Unrecognized [${provider}] Type.`)
 		const config = (await METADATA)?.[provider]
@@ -59,12 +60,11 @@ export class StreamsService{
 		const auth = await client.Authenticate(true)
 
 		const [UID, name] = await client.GetUIDAndName(auth)
+		if(existingUID && existingUID !== UID)
+			throw Error(`Re-connection does not match requested account`)
 		await SETTINGS.Modify(CLIENTS_KEY, (providers={}) => {
-			if(providers[provider]?.[UID] != null)
-				if(isNew)
-					throw Error(`Already connected to ${name} account`)
-			else if(!isNew)
-				throw Error(`Re-connection does not match any known account`)
+			if(existingUID == null && providers[provider]?.[UID])
+				throw Error(`Already connected to ${name} account`)
 			;(providers[provider]??={})[UID] = [auth, name] // semicolon required here
 			console.log(providers)
 			return providers
@@ -132,6 +132,11 @@ export class StreamsService{
 							}
 						}
 						errsModified = true
+						console.warn(e)
+						console.log(e.cause)
+						console.log(e.name)
+						console.log(e.message)
+						console.log(e.toString())
 						IncrementNestedValue(errs, provider, UID, e.cause + e.toString())
 					}
 				}

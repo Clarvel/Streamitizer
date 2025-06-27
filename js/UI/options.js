@@ -122,6 +122,7 @@ async function LoadOptionsContainer(){
 async function LoadClientsContainer(){
 	const dropdown = ACCOUNTS_CONTAINER.lastElementChild
 	ACCOUNTS_CONTAINER.textContent = ""
+	const reconnectText = GetI18nText(textKey, replacements)
 	const [accounts, errors] = await Promise.all([StreamsService.GetClientNames(), StreamsService.GetErrors()])
 	ACCOUNTS_CONTAINER.append(...Object.entries(accounts).map(([provider, clients])=>{
 		const providerElem = document.importNode(STREAMTYPE_TEMPLATE, true)
@@ -131,9 +132,12 @@ async function LoadClientsContainer(){
 		listElem.append(...Object.entries(clients).map(([UID, name])=>{
 			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
 			clientElem.querySelector("label").textContent = name
-			clientElem.querySelector("button.btn-close").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
+			const reconnectBtn = clientElem.querySelector("button[name='reconnect']")
+			reconnectText.then(text => reconnectBtn.textContent = text)
+			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, UID)))
+			clientElem.querySelector("button[name='remove']").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
 			const errs = errors?.[provider]?.[UID]
-			if(errs != null){
+			if(errs){
 				clientElem.querySelector(`.errors`).classList.remove("d-none")
 				clientElem.querySelector(".errors").append(...Object.entries(errs).map(([message, count])=>{
 					const el = document.importNode(ERROR_TEMPLATE, true)
@@ -146,6 +150,8 @@ async function LoadClientsContainer(){
 					})
 					return el
 				}))
+			}else{
+				reconnectBtn.style.display = "none"
 			}
 			return clientElem
 		}))
