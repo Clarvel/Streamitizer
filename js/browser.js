@@ -1,5 +1,3 @@
-import {TrimChars} from "./utils.js"
-
 var browser = chrome
 
 export class Browser{

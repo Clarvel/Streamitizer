@@ -19,7 +19,7 @@
 		"value":true
 	},
 	"consolidate":{
-		"value":3,
+		"value":0,
 		"options":[
 			0,
 			1,
@@ -27,7 +27,8 @@
 			3,
 			4,
 			5
-		]
+		],
+		"Disabled":true
 	},
 	"hideZero":{
 		"value":false
