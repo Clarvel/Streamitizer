@@ -40,7 +40,6 @@
 	"accounts":{"message":"Connected Accounts"},
 	"options":{"message":"Global Options"},
 	"accountsAdd":{"message":"+ Add Account"},
-	"reconnect":{"message":"Reconnect"},
 	"currentStream":{"message":"$streaming$ Person Streaming", "placeholders":{"streaming":{"content":"$1"}}},
 	"currentStreams":{"message":"$streaming$ People Streaming", "placeholders":{"streaming":{"content":"$1"}}},
 	"currentError":{"message":"$errors$ Account Error", "placeholders":{"errors":{"content":"$1"}}},

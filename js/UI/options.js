@@ -122,7 +122,6 @@ async function LoadOptionsContainer(){
 async function LoadClientsContainer(){
 	const dropdown = ACCOUNTS_CONTAINER.lastElementChild
 	ACCOUNTS_CONTAINER.textContent = ""
-	const reconnectText = GetI18nText("reconnect")
 	const [accounts, errors] = await Promise.all([StreamsService.GetClientNames(), StreamsService.GetErrors()])
 	ACCOUNTS_CONTAINER.append(...Object.entries(accounts).map(([provider, clients])=>{
 		const providerElem = document.importNode(STREAMTYPE_TEMPLATE, true)
@@ -133,7 +132,6 @@ async function LoadClientsContainer(){
 			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
 			clientElem.querySelector("label").textContent = name
 			const reconnectBtn = clientElem.querySelector("button[name='reconnect']")
-			reconnectText.then(text => reconnectBtn.textContent = text)
 			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, UID)))
 			clientElem.querySelector("button[name='remove']").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
 			const errs = errors?.[provider]?.[UID]
