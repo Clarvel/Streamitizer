@@ -62,21 +62,18 @@ export class StreamsService{
 		const [UID, name] = await client.GetUIDAndName(auth)
 		if(existingUID && existingUID !== UID)
 			throw Error(`Re-connection does not match requested account`)
-		await SETTINGS.Modify(CLIENTS_KEY, (providers={}) => {
+		await SETTINGS.Modify(CLIENTS_KEY, async (providers={}) => {
 			if(existingUID == null && providers[provider]?.[UID])
 				throw Error(`Already connected to ${name} account`)
 			;(providers[provider]??={})[UID] = [auth, name] // semicolon required here
-			console.log(providers)
+			// delete any existing errors here, becasue cache should refresh the options container
+			await SETTINGS.Modify(ERRS_KEY, o => DeleteNested(o, provider, UID))
 			return providers
 		}) // auth info saved here
-		return Promise.all([
-			SETTINGS.Modify(CACHE_KEY, async (cache={}) => {
-				;(cache[provider]??={})[UID] = await client.FetchStreams(auth, UID)
-				console.log(cache)
-				return cache
-			}), // stream cache saved here
-			SETTINGS.Modify(ERRS_KEY, o => DeleteNested(o, provider, UID)) // delete any existing errors
-		])
+		return SETTINGS.Modify(CACHE_KEY, async (cache={}) => {
+			;(cache[provider]??={})[UID] = await client.FetchStreams(auth, UID)
+			return cache
+		}) // stream cache saved here
 	}
 
 	static async Delete(provider, UID){
