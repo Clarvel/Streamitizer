@@ -2,7 +2,6 @@
 	--glyphSize: 34px;
 	--iconSize: 1.5em;
 	--subIconSize: 0.9em;
-	--subIconOffset: -0.25em;
 }
 body{
 	white-space: nowrap;
@@ -46,20 +45,19 @@ body{
 	height: var(--iconSize);
 	display: inline-block;
 	background-size: 100%;
-	position: relative;
 }
-.accountIcon::after{
-	content: "";
-	background-image: var(--url);
+.subIcon{
+	vertical-align: middle;
 	width: var(--subIconSize);
 	height: var(--subIconSize);
-	position: absolute;
-	bottom: var(--subIconOffset);
-	right: var(--subIconOffset);
-	background-size: 100%;
 }
 .desc{
 	font-weight: lighter;
+}
+.descContainer{
+	display: inline-flex;
+	margin-left: 0.4em;
+	overflow-x: hidden;
 }
 @keyframes slide {
 	0% {transform: translatex(0%)}

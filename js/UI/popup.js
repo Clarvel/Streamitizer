@@ -1,11 +1,12 @@
 import { MetadataSettings } from "../settings.js"
 import { LoadI18nTextToElem } from "../utils.js"
 import { Browser } from "../browser.js"
-import { FlatClientsData, StreamsService } from "../streamsService.js"
+import { StreamsService } from "../streamsService.js"
 import { DESC_SPEED, THEME } from "../IDs.js"
 
 
-const SINGLE_TEMPLATE = document.getElementById("singleStreamTemplate").content
+const MULTIPLE_TEMPLATE = document.getElementById("multipleStreamTemplate").content
+const M_STREAM_TEMPLATE = document.getElementById("streamTemplate").content
 
 const STREAMING_CONTAINER = document.getElementById("streamsContainer")
 const ERRORS_CONTAINER = document.getElementById("errorsContainer")
@@ -13,20 +14,39 @@ const ERRORS_HEADER = document.getElementById("errorsHeader")
 
 const SETTINGS = new MetadataSettings("../options.json")
 
+function CacheRemap(cache){
+	const output = {}
+	Object.entries(cache).map(([provider, clients])=>Object.entries(clients).map(([UID, streams])=>streams.forEach(([title, url, icon, desc])=>
+		(output[title] ??= {})[provider] = [url, icon, desc]
+	)))
+	return output
+}
+
 async function LoadStreamsContainer(){
 	STREAMING_CONTAINER.textContent = ""
-	STREAMING_CONTAINER.append(...FlatClientsData(await StreamsService.GetCachedStreams()).map(([title, link, icon, desc]) => {
-		const elem = document.importNode(SINGLE_TEMPLATE, true)
-		elem.firstElementChild.addEventListener("click", (e)=>{
-			e.stopPropagation()
-			Browser.OpenInNewTab(link)
-		})
-		elem.querySelector(".title").textContent = title
-		elem.querySelector(".desc").textContent = desc.trim()
+	STREAMING_CONTAINER.append(...Object.entries(CacheRemap(await StreamsService.GetCachedStreams())).flatMap(([title, providers])=>{
+		const elem = document.importNode(MULTIPLE_TEMPLATE, true)
 		const img = elem.querySelector(".accountIcon")
 		img.title = title
-		//img.style.setProperty("--url", `url('/icons/${provider}.png')`)
-		img.style.backgroundImage = `url('${icon}')`
+		elem.querySelector(".title").textContent = title
+		const [link0, icon0, desc0] = Object.values(providers)[0]
+		img.style.backgroundImage = `url('${icon0}')`
+		elem.firstElementChild.addEventListener("click", (e)=>{
+			e.stopPropagation()
+			Browser.OpenInNewTab(link0)
+		})
+		elem.querySelector(".streamsList").append(...Object.entries(providers).flatMap(([provider, [link, icon, desc]])=>{
+			const elem1 = document.importNode(M_STREAM_TEMPLATE, true)
+			elem1.querySelector(".desc").textContent = desc.trim()
+			elem1.firstElementChild.addEventListener("click", (e)=>{
+				e.stopPropagation()
+				Browser.OpenInNewTab(link)
+			})
+			const sIcon = elem1.querySelector(".subIcon")
+			sIcon.src = `/icons/${provider}.png`
+			sIcon.title = title
+			return elem1
+		}))
 		return elem
 	}))
 

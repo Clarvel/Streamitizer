@@ -135,7 +135,7 @@ async function LoadClientsContainer(){
 			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, UID)))
 			clientElem.querySelector("button[name='remove']").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
 			const errs = errors?.[provider]?.[UID]
-			if(errs){
+			if(errs && Object.keys(errs) > 0){
 				clientElem.querySelector(`.errors`).classList.remove("d-none")
 				clientElem.querySelector(".errors").append(...Object.entries(errs).map(([message, count])=>{
 					const el = document.importNode(ERROR_TEMPLATE, true)
