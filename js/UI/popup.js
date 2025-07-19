@@ -2,7 +2,7 @@ import { MetadataSettings } from "../settings.js"
 import { LoadI18nTextToElem } from "../utils.js"
 import { Browser } from "../browser.js"
 import { StreamsService } from "../streamsService.js"
-import { DESC_SPEED, THEME } from "../IDs.js"
+import { DESC_SPEED, THEME, GROUP_STREAMS } from "../IDs.js"
 
 
 const MULTIPLE_TEMPLATE = document.getElementById("multipleStreamTemplate").content
@@ -15,16 +15,23 @@ const ERRORS_HEADER = document.getElementById("errorsHeader")
 const SETTINGS = new MetadataSettings("../options.json")
 
 function CacheRemap(cache){
-	const output = {}
-	Object.entries(cache).map(([provider, clients])=>Object.entries(clients).map(([UID, streams])=>streams.forEach(([title, url, icon, desc])=>
-		(output[title] ??= {})[provider] = [url, icon, desc]
+	if(SETTINGS.GetSingle(GROUP_STREAMS)){
+		const output = {}
+		Object.entries(cache).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(([title, url, icon, desc])=>
+			(output[title] ??= {})[provider] = [url, icon, desc]
+		)))
+		return Object.entries(output)
+	}
+	const output = []
+	Object.entries(cache).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(([title, url, icon, desc])=>
+		output.push([title, {[provider]:[url, icon, desc]}])
 	)))
 	return output
 }
 
 async function LoadStreamsContainer(){
 	STREAMING_CONTAINER.textContent = ""
-	STREAMING_CONTAINER.append(...Object.entries(CacheRemap(await StreamsService.GetCachedStreams())).flatMap(([title, providers])=>{
+	STREAMING_CONTAINER.append(...CacheRemap(await StreamsService.GetCachedStreams()).flatMap(([title, providers])=>{
 		const elem = document.importNode(MULTIPLE_TEMPLATE, true)
 		const img = elem.querySelector(".accountIcon")
 		img.title = title

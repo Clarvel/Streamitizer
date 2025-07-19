@@ -18,7 +18,7 @@
 	"notifications":{
 		"value":true
 	},
-	"consolidate":{
+	"groupNotif":{
 		"value":0,
 		"options":[
 			0,
@@ -29,6 +29,9 @@
 			5
 		],
 		"disabled":true
+	},
+	"groupStreams":{
+		"value":true
 	},
 	"hideZero":{
 		"value":false

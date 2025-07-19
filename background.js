@@ -1,5 +1,5 @@
 import { Browser } from "./js/browser.js"
-import { CACHE_KEY, CONSOLIDATE, ERRS_KEY, LAST_UPDATE_KEY, MULTIPLE_NOTIFS_ID, NOTIFICATIONS, HIDEZERO, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
+import { CACHE_KEY, GROUP_NOTIFICATIONS, ERRS_KEY, LAST_UPDATE_KEY, MULTIPLE_NOTIFS_ID, NOTIFICATIONS, HIDEZERO, UPDATE_INTERVAL_KEY, UPDATE_STREAMS_ID } from "./js/IDs.js"
 import { MetadataSettings } from "./js/settings.js"
 import { StreamsService, FlatClientsData } from "./js/streamsService.js"
 import { GetI18nText } from "./js/utils.js"
@@ -86,8 +86,8 @@ async function OnStorageStateChanged(changes){
 					// want to find all NEW entries, so all n not in o
 					const existing = FlatClientsData(v["oldValue"]).map(([name, link, icon, desc]) => name)
 					const newEntries = FlatClientsData(v["newValue"]).filter(([name, link, icon, desc]) => !existing.includes(name))
-					const consolidate = await SETTINGS.GetSingle(CONSOLIDATE)
-					if(newEntries.length > consolidate && consolidate > 0)
+					const groupNotif = await SETTINGS.GetSingle(GROUP_NOTIFICATIONS)
+					if(newEntries.length > groupNotif && groupNotif > 0)
 						Browser.CreateNotification(MULTIPLE_NOTIFS_ID, "Multiple new Streams!", newEntries.map(([name, link, icon, desc]) => name).join(", "))
 					else
 						newEntries.forEach(([name, link, icon, desc]) => Browser.CreateNotification(link, name, desc, icon))
