@@ -14,8 +14,8 @@ const ERRORS_HEADER = document.getElementById("errorsHeader")
 
 const SETTINGS = new MetadataSettings("../options.json")
 
-function CacheRemap(cache){
-	if(SETTINGS.GetSingle(GROUP_STREAMS)){
+async function CacheRemap(cache){
+	if(await SETTINGS.GetSingle(GROUP_STREAMS)){
 		const output = {}
 		Object.entries(cache).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(([title, url, icon, desc])=>
 			(output[title] ??= {})[provider] = [url, icon, desc]
@@ -31,7 +31,7 @@ function CacheRemap(cache){
 
 async function LoadStreamsContainer(){
 	STREAMING_CONTAINER.textContent = ""
-	STREAMING_CONTAINER.append(...CacheRemap(await StreamsService.GetCachedStreams()).flatMap(([title, providers])=>{
+	STREAMING_CONTAINER.append(...(await CacheRemap(await StreamsService.GetCachedStreams())).flatMap(([title, providers])=>{
 		const elem = document.importNode(MULTIPLE_TEMPLATE, true)
 		const img = elem.querySelector(".accountIcon")
 		img.title = title
