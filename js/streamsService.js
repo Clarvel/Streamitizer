@@ -4,7 +4,7 @@ import { Picarto } from "./providers/picarto.js"
 import { Piczel } from "./providers/piczel.js"
 import { Twitch } from "./providers/twitch.js"
 import { Youtube } from "./providers/youtube.js"
-import { CACHE_KEY, CLIENTS_KEY, ERRS_KEY, SERVER_ERR_KEY } from "./IDs.js"
+import { CACHE_KEY, CLIENTS_KEY, ERRS_KEY, GROUP_STREAMS, SERVER_ERR_KEY } from "./IDs.js"
 
 const SERVER_ERR_RETRYS = 2
 
@@ -147,15 +147,23 @@ export class StreamsService{
 		}, console.warn)
 	}
 
-	static async GetCachedStreams(){
-		return SETTINGS.GetSingle(CACHE_KEY) ?? {}
-	}
-
-	static async StreamsCount(streams=null){
-		return FlatClientsData(streams ?? await StreamsService.GetCachedStreams()).length
-	}
-
 	static async ErrsCount(errs=null){
 		return FlatClientsData(errs ?? await StreamsService.GetErrors()).reduce((acc, len) => acc + len, 0)
+	}
+	
+	static async StreamsCount(streams=null){
+		return (await StreamsService.GetRemappedStreams(streams)).length
+	}
+
+	// supports passing in streams to shortcut awaiting CACHE_KEY
+	static async GetRemappedStreams(streams=null){
+		let output = []
+		let func = (provider, title, url, icon, desc) => output.push([title, {[provider]:[url, icon, desc]}])
+		if(await SETTINGS.GetSingle(GROUP_STREAMS)){
+			output = {}
+			func = (provider, title, url, icon, desc) => (output[title] ??= {})[provider] = [url, icon, desc]
+		}
+		Object.entries(streams ?? (await SETTINGS.GetSingle(CACHE_KEY)) ?? {}).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(stream => func(provider, ...stream))))
+		return Array.isArray(output) ? array : Object.entries(output)
 	}
 }
