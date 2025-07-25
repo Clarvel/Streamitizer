@@ -84,8 +84,9 @@ async function OnStorageStateChanged(changes){
 				UpdateBadge(v["newValue"], null)
 				if(await SETTINGS.GetSingle(NOTIFICATIONS)){
 					// want to find all NEW entries, so all n not in o
-					const existing = FlatClientsData(v["oldValue"]).map(([name, link, icon, desc]) => name)
-					const newEntries = FlatClientsData(v["newValue"]).filter(([name, link, icon, desc]) => !existing.includes(name))
+					const existing = new Set(FlatClientsData(v["oldValue"]).map(([name, link, icon, desc]) => name))
+					const newEntries = [...new Map(FlatClientsData(v["newValue"]).filter(([name, link, icon, desc]) => !existing.has(name)).map(stream => [stream[0], stream])).values()]
+
 					const groupNotif = await SETTINGS.GetSingle(GROUP_NOTIFICATIONS)
 					if(newEntries.length > groupNotif && groupNotif > 0)
 						Browser.CreateNotification(MULTIPLE_NOTIFS_ID, "Multiple new Streams!", newEntries.map(([name, link, icon, desc]) => name).join(", "))
