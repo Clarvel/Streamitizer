@@ -18,7 +18,7 @@ export class Settings{
 	
 	async GetSingle(key){return this.Get([key]).then(r => r[0])}
 
-	async _Get(keys){
+	async _GetEntries(keys){
 		const stored = await Browser.GetStorage(keys)
 		return keys.map(k => [k, stored[k]])
 	}
@@ -38,7 +38,7 @@ export class MetadataSettings extends Settings{
 	}
 
 	async Get(keys){
-		const [metadata, stored] = await Promise.all([this._Metadata, super._Get(keys)])
+		const [metadata, stored] = await Promise.all([this._Metadata, super._GetEntries(keys)])
 		//console.log(keys, metadata, stored)
 		return stored.map(([k, v]) => v ?? metadata[k]?.[DEFAULT] ?? null) // can still have value = null
 	}
@@ -48,7 +48,7 @@ export class MetadataSettings extends Settings{
 	// returns an array of [key, object], where object.value is defined from storage, or the default
 	async GetMetadata(){
 		const metadata = Copy(await this._Metadata)
-		const kvps = await super._Get(Object.keys(metadata))
+		const kvps = await super._GetEntries(Object.keys(metadata))
 		kvps.filter(([k, v]) => v != null).forEach(([k, v]) => metadata[k][DEFAULT] = v)
 		return Object.entries(metadata)
 	}
