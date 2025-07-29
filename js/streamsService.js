@@ -158,10 +158,10 @@ export class StreamsService{
 	// supports passing in streams to shortcut awaiting CACHE_KEY
 	static async GetRemappedStreams(streams=null){
 		let output = []
-		let func = (provider, title, url, icon, desc) => output.push([title, {[provider]:[url, icon, desc]}])
+		let func = (provider, title, url, icon, desc) => output.push([title, {[url]:[provider, icon, desc]}])
 		if(await SETTINGS.GetSingle(GROUP_STREAMS)){
 			output = {}
-			func = (provider, title, url, icon, desc) => (output[title] ??= {})[provider] = [url, icon, desc]
+			func = (provider, title, url, icon, desc) => (output[title] ??= {})[url] = [provider, icon, desc]
 		}
 		Object.entries(streams ?? (await SETTINGS.GetSingle(CACHE_KEY)) ?? {}).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(stream => func(provider, ...stream))))
 		return Array.isArray(output) ? array : Object.entries(output)

@@ -29,7 +29,7 @@ async function LoadStreamsContainer(){
 			e.stopPropagation()
 			Browser.OpenInNewTab(link0)
 		})
-		elem.querySelector(".streamsList").append(...Object.entries(providers).flatMap(([provider, [link, icon, desc]])=>{
+		elem.querySelector(".streamsList").append(...Object.entries(providers).flatMap(([link, [provider, icon, desc]])=>{
 			const elem1 = document.importNode(M_STREAM_TEMPLATE, true)
 			elem1.querySelector(".desc").textContent = desc.trim()
 			elem1.firstElementChild.addEventListener("click", (e)=>{
