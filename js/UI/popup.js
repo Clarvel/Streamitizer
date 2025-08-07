@@ -23,7 +23,7 @@ async function LoadStreamsContainer(){
 		const img = elem.querySelector(".accountIcon")
 		img.title = title
 		elem.querySelector(".title").textContent = title
-		const [link0, icon0, desc0] = Object.values(providers)[0]
+		const [link0, [provider0, icon0, desc0]] = Object.entries(providers)[0]
 		img.style.backgroundImage = `url('${icon0}')`
 		elem.firstElementChild.addEventListener("click", (e)=>{
 			e.stopPropagation()
