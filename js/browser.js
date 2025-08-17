@@ -82,6 +82,7 @@ export class Browser{
 	}).catch(console.warn)
 
 	static OnInstalled = func => browser.runtime.onInstalled.addListener(func)
+	static OnStartup = func => browser.runtime.onStartup.addListener(func)
 
 	/**
 	 * @param {string} encodedURL 
