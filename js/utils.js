@@ -220,9 +220,9 @@ export function SetElemValue(elem, value){
 /**
  * @param {string} textKey 
  * @param {Array<string>} replacements 
- * @returns {Promise<string>}
+ * @returns {string}
  */
-export async function GetI18nText(textKey, replacements = undefined){
+export function GetI18nText(textKey, replacements = undefined){
 	try{
 		return Browser.GetLocaleText(textKey, replacements)
 	}catch(e){
@@ -236,9 +236,8 @@ export async function GetI18nText(textKey, replacements = undefined){
  * @param {string} textKey 
  * @param {Array<string>} replacements 
  */
-export async function LoadI18nTextToElem(elem, textKey, replacements = undefined){
-	//console.log(textKey, replacements, await GetI18nText(textKey, replacements))
-	elem.textContent = await GetI18nText(textKey, replacements)
+export function LoadI18nTextToElem(elem, textKey, replacements = undefined){ //TODO: just inline this?
+	elem.textContent = GetI18nText(textKey, replacements)
 }
 
 /**

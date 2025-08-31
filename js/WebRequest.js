@@ -28,13 +28,12 @@ export class WebRequest{
 			return null // fetch returned no response!
 		if(!response.ok)
 			throw Error(`Network request failed with status ${response.status} ${response.statusText}: [${await response.text().catch()}]`, {cause:response.status})
-		console.debug(uri, responseClass, method, query, body, headers)
+		//console.debug(uri, responseClass, method, query, body, headers)
 
 		if(typeof responseClass === 'string')
 			return response.text()
 			
 		const json = await response.json()
-		console.debug(json)
 		return responseClass != null ? new responseClass(json) : json
 	}
 

@@ -40,7 +40,7 @@ async function OnManualInputChange(inputElem){
 	inputElem.setAttribute("indeterminate", "")
 
 	try{
-		return await SETTINGS.Set(inputElem.id, GetElemValue(inputElem)) // handle removing the attribute when we get the onChanged confirmation
+		return await SETTINGS.SetSingle(inputElem.id, GetElemValue(inputElem)) // handle removing the attribute when we get the onChanged confirmation
 	}catch(e){
 		console.warn(e)
 		try{
@@ -71,7 +71,7 @@ async function LoadOptionsContainer(){
 				[elem, input] = ImportTemplate(SELECT_TEMPLATE)
 				for(const option of v["options"]){
 					const e = document.createElement("option")
-					LoadI18nTextToElem(e, k + option.toString()) // dont care when this completes, using .toString, because name could be a number
+					LoadI18nTextToElem(e, k + option.toString())// using .toString, because name could be a number
 					e.value = option
 					input.appendChild(e)
 				}
@@ -103,7 +103,7 @@ async function LoadOptionsContainer(){
 			}
 		
 			const label = elem.querySelector("label")
-			LoadI18nTextToElem(label, k) // don't care when this completes
+			LoadI18nTextToElem(label, k)
 			input.id = label.htmlFor = k
 				
 			SetElemValue(input, v[DEFAULT])
@@ -223,7 +223,7 @@ window.onload = async ()=>{
 
 	for(const provider of await PROVIDER_TYPES()){ // setup the dropdown with available service types
 		const elem = document.createElement("option")
-		LoadI18nTextToElem(elem, provider) // dont care when this completes
+		LoadI18nTextToElem(elem, provider)
 		elem.value = provider
 		ACCOUNTS_ADD_BUTTON.appendChild(elem)
 	}

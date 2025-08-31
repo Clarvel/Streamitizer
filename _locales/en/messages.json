@@ -44,5 +44,7 @@
 	"currentStream":{"message":"$streaming$ Person Streaming", "placeholders":{"streaming":{"content":"$1"}}},
 	"currentStreams":{"message":"$streaming$ People Streaming", "placeholders":{"streaming":{"content":"$1"}}},
 	"currentError":{"message":"$errors$ Account Error", "placeholders":{"errors":{"content":"$1"}}},
-	"currentErrors":{"message":"$errors$ Account Errors", "placeholders":{"errors":{"content":"$1"}}}
+	"currentErrors":{"message":"$errors$ Account Errors", "placeholders":{"errors":{"content":"$1"}}},
+	"notificationsTitle":{"message":"Multiple New Streams!"},
+	"notificationsDesc":{"message":"Open Extension for details"}
 }

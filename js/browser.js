@@ -11,7 +11,7 @@ export class Browser{
 	}
 
 	static OpenInNewTab = url => browser.tabs.create({"url":url})
-	static OpenPopup = () => chrome ? browser.action.openPopup() : browser.browserAction.openPopup()
+	static OpenPopup = (metadata) => this.OpenInNewTab(`html/popup.html${metadata}`)//chrome ? browser.action.openPopup() : browser.browserAction.openPopup()
 
 	/**
 	 * @param {object} data
@@ -74,9 +74,9 @@ export class Browser{
 	 * @param {string} iconUrl 
 	 * @returns {Promise<string>} response will be the notification id
 	 */
-	static CreateNotification = (id, title, message, iconUrl="") => browser.notifications.create(id, {
+	static CreateNotification = (id, title, message, iconUrl=undefined) => browser.notifications.create(id, {
 		"type":"basic",
-		"iconUrl":iconUrl,
+		"iconUrl":iconUrl ?? browser.runtime.getURL('icons/icon.png'),
 		"title":title,
 		"message":message
 	}).catch(console.warn)

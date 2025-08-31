@@ -14,5 +14,5 @@ export const GROUP_NOTIFICATIONS = "groupNotif"
 export const GROUP_STREAMS = "groupStreams"
 export const HIDEZERO = "hideZero"
 
-export const MULTIPLE_NOTIFS_ID = "multiple"
+export const MULTIPLE_NOTIFS_ID = "#notification"
 export const SERVER_ERR_KEY = "500 - Server Error"

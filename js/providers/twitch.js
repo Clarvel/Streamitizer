@@ -23,7 +23,6 @@ export class Twitch extends Provider(OAuth2PKCEAuth){
 		const result = (await WebRequest.GET("https://api.twitch.tv/helix/users?"+streams.map(s=>"id="+s["user_id"]).join('&'), opts))["data"]
 		const imgDict = Object.fromEntries(result.map(d=>[d["id"], d["profile_image_url"]]))
 
-		console.log(streams)
 		return streams.map(s=>[
 			s["user_name"],
 			"https://twitch.tv/"+s["user_name"], 

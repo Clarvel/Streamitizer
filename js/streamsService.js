@@ -4,7 +4,7 @@ import { Picarto } from "./providers/picarto.js"
 import { Piczel } from "./providers/piczel.js"
 import { Twitch } from "./providers/twitch.js"
 import { Youtube } from "./providers/youtube.js"
-import { CACHE_KEY, CLIENTS_KEY, ERRS_KEY, GROUP_STREAMS, SERVER_ERR_KEY } from "./IDs.js"
+import { CACHE_KEY, CLIENTS_KEY, ERRS_KEY, GROUP_STREAMS, LAST_UPDATE_KEY, SERVER_ERR_KEY } from "./IDs.js"
 
 const SERVER_ERR_RETRYS = 2
 
@@ -140,10 +140,9 @@ export class StreamsService{
 				return []
 			})
 		}).then(cache => {
-			console.debug(cache, errs)
 			if(errsModified)
-				SETTINGS.Set(ERRS_KEY, errs) // don't care when this finishes
-			return SETTINGS.Set(CACHE_KEY, cache)
+				SETTINGS.SetSingle(ERRS_KEY, errs) // don't care when this finishes
+			return cache
 		}, console.warn)
 	}
 
@@ -164,6 +163,6 @@ export class StreamsService{
 			func = (provider, title, url, icon, desc) => (output[title] ??= {})[url] = [provider, icon, desc]
 		}
 		Object.entries(streams ?? (await SETTINGS.GetSingle(CACHE_KEY)) ?? {}).forEach(([provider, clients])=>Object.entries(clients).forEach(([UID, streams])=>streams.forEach(stream => func(provider, ...stream))))
-		return Array.isArray(output) ? array : Object.entries(output)
+		return Array.isArray(output) ? output : Object.entries(output)
 	}
 }

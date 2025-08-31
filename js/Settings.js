@@ -22,9 +22,10 @@ export class Settings{
 		const stored = await Browser.GetStorage(keys)
 		return keys.map(k => [k, stored[k]])
 	}
-	Set = (key, value) => Browser.SetStorage({[key]:value})
+	Set = (dict) => Browser.SetStorage(dict)
+	SetSingle = (key, value) => this.Set({[key]:value})
 	Del(keys){return Browser.RemoveStorage(keys)} // accepts single string or an array of strings
-	async Modify(key, func){await this.Set(key, await func(await this.GetSingle(key)))}
+	async Modify(key, func){await this.SetSingle(key, await func(await this.GetSingle(key)))}
 
 	// func will be invoked with an array of key, value pairs. value can be null
 	OnUpdate(func){Browser.OnStorageStateChanged(changes => func(Object.entries(changes).map(([k, v], i) => [k, v["newValue"]])))} // TODO: is this used outside MetadataSettings?
@@ -58,7 +59,6 @@ export class MetadataSettings extends Settings{
 	OnUpdate(func){
 		super.OnUpdate(async kvps => {
 			const metadata = await this._Metadata
-			console.debug(kvps, metadata)
 			func(kvps.map(([k, v]) => [k, v ?? metadata[k]?.[DEFAULT]]))
 		})
 	}

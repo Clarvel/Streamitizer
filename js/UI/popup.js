@@ -2,7 +2,7 @@ import { MetadataSettings } from "../settings.js"
 import { LoadI18nTextToElem } from "../utils.js"
 import { Browser } from "../browser.js"
 import { StreamsService } from "../streamsService.js"
-import { DESC_SPEED, THEME } from "../IDs.js"
+import { DESC_SPEED, THEME, MULTIPLE_NOTIFS_ID } from "../IDs.js"
 
 
 const MULTIPLE_TEMPLATE = document.getElementById("multipleStreamTemplate").content
@@ -15,8 +15,12 @@ const ERRORS_HEADER = document.getElementById("errorsHeader")
 const SETTINGS = new MetadataSettings("../options.json")
 
 
-
 async function LoadStreamsContainer(){
+	function setLink(elem, link){
+		elem.href = link
+		if(location.hash !== MULTIPLE_NOTIFS_ID)
+			elem.target = '_blank'
+	}
 	STREAMING_CONTAINER.textContent = ""
 	STREAMING_CONTAINER.append(...(await StreamsService.GetRemappedStreams()).flatMap(([title, providers])=>{
 		const elem = document.importNode(MULTIPLE_TEMPLATE, true)
@@ -25,17 +29,11 @@ async function LoadStreamsContainer(){
 		elem.querySelector(".title").textContent = title
 		const [link0, [provider0, icon0, desc0]] = Object.entries(providers)[0]
 		img.style.backgroundImage = `url('${icon0}')`
-		elem.firstElementChild.addEventListener("click", (e)=>{
-			e.stopPropagation()
-			Browser.OpenInNewTab(link0)
-		})
+		setLink(elem.querySelector('a'), link0)
 		elem.querySelector(".streamsList").append(...Object.entries(providers).flatMap(([link, [provider, icon, desc]])=>{
 			const elem1 = document.importNode(M_STREAM_TEMPLATE, true)
 			elem1.querySelector(".desc").textContent = desc.trim()
-			elem1.firstElementChild.addEventListener("click", (e)=>{
-				e.stopPropagation()
-				Browser.OpenInNewTab(link)
-			})
+			setLink(elem1.querySelector('a'), link)
 			const sIcon = elem1.querySelector(".subIcon")
 			sIcon.src = `/icons/${provider}.png`
 			sIcon.title = title
