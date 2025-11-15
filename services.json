@@ -19,6 +19,10 @@
 		"PKCE": false
 	},
 	"youtube":{
-		"Site": "https://youtube.com"
+		"Site": "https://youtube.com",
+		"ClientID": "463633408812-06gm6hp78drr5djcdee1j5s0r7t5j0bp.apps.googleusercontent.com",
+		"AuthenticationAPI": "https://accounts.google.com/o/oauth2/v2/auth",
+		"TokenAPI": "https://oauth2.googleapis.com/token",
+		"Scopes": ["https://www.googleapis.com/auth/youtube.readonly"]
 	}
 }
