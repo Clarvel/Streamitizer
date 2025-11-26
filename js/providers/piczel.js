@@ -9,7 +9,10 @@ export class Piczel extends Provider(CookieAuth){
 	}
 
 	async FetchStreams(auth, UID){
-		return (await WebRequest.GET("https://piczel.tv/api/feed?hideNsfw=false", {"headers":auth})).filter(s=>s["action"] === "live").map(s=>[
+		const json = (await WebRequest.GET("https://piczel.tv/api/feed?hideNsfw=false", {"headers":auth}))
+		if(!Array.isArray(json))
+			throw Error("Piczel Fetch could not find Stream Data")
+		return json.filter(s=>s["action"] === "live").map(s=>[
 			s["user"]["username"],
 			"https://piczel.tv/watch/"+s["user"]["username"], 
 			s["user"]["avatar"]["url"],
