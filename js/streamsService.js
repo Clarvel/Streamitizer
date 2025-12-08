@@ -5,6 +5,7 @@ import { Piczel } from "./providers/piczel.js"
 import { Twitch } from "./providers/twitch.js"
 import { Youtube } from "./providers/youtube.js"
 import { CACHE_KEY, CLIENTS_KEY, ERRS_KEY, GROUP_STREAMS, LAST_UPDATE_KEY, SERVER_ERR_KEY } from "./IDs.js"
+import { ParseFetchError } from "./errors.js"
 
 const SERVER_ERR_RETRYS = 2
 
@@ -108,7 +109,7 @@ export class StreamsService{
 					}catch(e){
 						if(e instanceof TypeError)
 							throw e // likely means network disconnected, so discard ALL work and don't update cache
-						if(600 > e.cause && e.cause >= 500){ // problem with network or server, carry over cache on first 2 attempts
+						if(e instanceof ParseFetchError || (600 > e.cause && e.cause >= 500)){ // problem with parsing data, or network or server, carry over cache on first 2 attempts
 							errsModified = true
 							const incr = IncrementNestedValue(errs, provider, UID, SERVER_ERR_KEY)
 							return incr <= SERVER_ERR_RETRYS ? (await SETTINGS.GetSingle(CACHE_KEY))?.[provider]?.[UID] ?? [] : []
@@ -129,11 +130,6 @@ export class StreamsService{
 							}
 						}
 						errsModified = true
-						console.warn(e)
-						console.log(e.cause)
-						console.log(e.name)
-						console.log(e.message)
-						console.log(e.toString())
 						IncrementNestedValue(errs, provider, UID, e.cause + e.toString())
 					}
 				}

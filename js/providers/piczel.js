@@ -1,4 +1,5 @@
 import { CookieAuth } from "../authTypes/cookieAuth.js"
+import { ParseFetchError } from "../errors.js"
 import { Provider } from "../provider.js"
 import { WebRequest } from "../webRequest.js"
 
@@ -11,7 +12,7 @@ export class Piczel extends Provider(CookieAuth){
 	async FetchStreams(auth, UID){
 		const json = (await WebRequest.GET("https://piczel.tv/api/feed?hideNsfw=false", {"headers":auth}))
 		if(!Array.isArray(json))
-			throw Error("Piczel Fetch could not find Stream Data")
+			throw ParseFetchError("Piczel Fetch could not find Stream Data")
 		return json.filter(s=>s["action"] === "live").map(s=>[
 			s["user"]["username"],
 			"https://piczel.tv/watch/"+s["user"]["username"], 

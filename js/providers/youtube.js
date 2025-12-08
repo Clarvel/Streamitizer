@@ -1,4 +1,5 @@
 import { NoAuth } from "../authTypes/noAuth.js"
+import { ParseFetchError } from "../errors.js"
 import { Provider } from "../provider.js"
 
 export class Youtube extends Provider(NoAuth){
@@ -14,7 +15,7 @@ export class Youtube extends Provider(NoAuth){
 		json = json?.["contents"]?.["twoColumnBrowseResultsRenderer"]?.["tabs"]?.[0]?.["tabRenderer"]?.["content"]
 		?.["richGridRenderer"]?.["contents"]?.map(i=>i["richItemRenderer"]?.["content"]?.["lockupViewModel"]?.["metadata"]?.["lockupMetadataViewModel"])
 		if(!Array.isArray(json))
-			throw Error("Youtube Fetch could not find Stream Data")
+			throw ParseFetchError("Youtube Fetch could not find Stream Data")
 		let streams = json.filter(i=>i?.["image"]?.["decoratedAvatarViewModel"]?.["liveData"]?.["liveBadgeText"] === "LIVE")?.map(i=>{
 			return [
 				i["metadata"]["contentMetadataViewModel"]["metadataRows"][0]["metadataParts"][0]["text"]["content"],

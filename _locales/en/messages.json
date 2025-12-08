@@ -25,6 +25,7 @@
 	"picarto":{"message":"Picarto"},
 	"piczel":{"message":"Piczel"},
 	"twitch":{"message":"Twitch"},
+	"reconnectAccount":{"message":"Reconnect"},
     "resetOptions":{"message":"Reset\u00a0settings"},
 	"resetAccounts":{"message":"Reset\u00a0accounts"},
 	"error":{"message":"An error occurred."},
