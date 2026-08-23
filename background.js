@@ -103,7 +103,7 @@ Browser.OnNotificationClicked((id) => {
 })
 
 const RuntimeSetup = () => Promise.all([UpdateAlarm(), UpdateBadge()])
-RuntimeSetup().then(() => {
+//RuntimeSetup().then(() => {
 	Browser.OnInstalled(RuntimeSetup)
 	Browser.OnStartup(RuntimeSetup)
-})
+//})
