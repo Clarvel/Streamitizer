@@ -17,7 +17,6 @@ const ACCOUNT_TEMPLATE = document.getElementById("accountTemplate").content
 const BOOL_TEMPLATE = document.getElementById("boolTemplate").content
 const SELECT_TEMPLATE = document.getElementById("selectTemplate").content
 const RANGE_TEMPLATE = document.getElementById("rangeTemplate").content
-const ERROR_TEMPLATE = document.getElementById("errorTemplate").content
 
 const SETTINGS = new MetadataSettings("../options.json")
 
@@ -131,26 +130,14 @@ async function LoadClientsContainer(){
 		listElem.append(...Object.entries(clients).map(([UID, name])=>{
 			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
 			clientElem.querySelector("label").textContent = name
+			LoadI18TextToElem(clientElem.querySelector("label[name='err']"), "authExpiredError")
 			const reconnectBtn = clientElem.querySelector("button[name='reconnect']")
 			LoadI18nTextToElem(reconnectBtn, "reconnectAccount")
 			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, UID)))
 			clientElem.querySelector("button[name='remove']").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
 			const errs = errors?.[provider]?.[UID]
 			if(errs && Object.keys(errs).length > 0){
-				clientElem.querySelector(`.errors`).classList.remove("d-none")
-				clientElem.querySelector(".errors").append(...Object.entries(errs).map(([message, count])=>{
-					const el = document.importNode(ERROR_TEMPLATE, true)
-					el.querySelector(".desc").textContent = message//.slice(0, 3)
-					el.querySelector(".count").textContent = count
-					el.querySelector(".remove").addEventListener("click", async (e)=>{
-						e.stopPropagation();
-						await StreamsService.ClearError(provider, UID, message)
-						e.target.parentNode.remove()
-					})
-					return el
-				}))
-			}else{
-				reconnectBtn.style.display = "none"
+				clientElem.querySelector("div[name='errBox']").classList.remove("d-none")
 			}
 			return clientElem
 		}))
