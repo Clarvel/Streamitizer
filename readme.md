@@ -7,7 +7,7 @@
 
 ## TODO: Known Issues
 * Youtube does not utilize an API and is dependent on HTML scraping
-* bootstrap has generated warnings
+* bootstrap has generated warnings when uploading the extension
 * adding multiple picarto accounts doesn't work - keeps trying to use the existing account
 * no refresh when perms expire?
 
