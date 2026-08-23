@@ -48,5 +48,6 @@
 	"currentErrors":{"message":"$errors$ Account Errors", "placeholders":{"errors":{"content":"$1"}}},
 	"notificationsTitle":{"message":"Multiple New Streams!"},
 	"notificationsDesc":{"message":"Open Extension for details"},
-	"authExpiredError":{"message":"Authentication Expired"}
+	"authExpiredError":{"message":"Authentication Expired"},
+	"PiczelrequestBearerToken":{"message":"Please create a Personal Token at https://piczel.tv/account/personal-tokens and paste the token here:"}
 }

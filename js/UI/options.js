@@ -215,4 +215,10 @@ window.onload = async ()=>{
 		elem.value = provider
 		ACCOUNTS_ADD_BUTTON.appendChild(elem)
 	}
+	Browser.OnMessage((message) => {
+		switch (message.type) {
+			case "prompt": return window.prompt(GetI18nText(message.prompt))
+			default: throw new Error("Not Implemented")
+		}
+	})
 }

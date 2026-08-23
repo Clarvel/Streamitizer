@@ -37,9 +37,9 @@ export class Browser{
 	 * @returns {number} listener index number
 	 */
 	static OnMessage(func){
-		return browser.runtime.onMessage.addListener((response, sender, sendResponse) => {
+		return browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			try{
-				sendResponse(func(response))// TODO handle with Promise instead of sendResponse, once chrome enables it
+				sendResponse(func(message))// TODO handle with Promise instead of sendResponse, once chrome enables it
 				return true
 			}catch(e){
 				console.warn(e)

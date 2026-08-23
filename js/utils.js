@@ -320,3 +320,7 @@ export function GetNestedValue(obj, ...keys){
 	}
 	return obj
 }
+
+export function IsNullOrWhitespace(input) {
+	return !input?.trim()
+}
