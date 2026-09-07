@@ -1,20 +1,16 @@
-import { PersonalTokenAuth } from "../authTypes/personalTokenAuth.js"
+import { NoAuth } from "../authTypes/noAuth.js"
 import { ParseFetchError } from "../errors.js"
 import { Provider } from "../provider.js"
 import { WebRequest } from "../webRequest.js"
 
-export class Piczel extends Provider(PersonalTokenAuth){
-	Payload(auth){
-		return {headers:{"Authorization":`Bearer ${auth}`}}
-	}
-
+export class Piczel extends Provider(NoAuth){
 	async GetUIDAndName(auth){
-		const username = (await WebRequest.GET("https://piczel.tv/api/users/me", this.Payload(auth)))["username"]
-		return [username, username]
+		const data = (await WebRequest.GET("https://api.piczel.tv/users/me"))
+		return [data["id"], data["username"]]
 	}
 
 	async FetchStreams(auth, UID){
-		const json = (await WebRequest.GET("https://piczel.tv/api/feed?hideNsfw=false", this.Payload(auth)))
+		const json = (await WebRequest.GET("https://api.piczel.tv/feed?hideNsfw=false"))
 		if(!Array.isArray(json))
 			throw ParseFetchError("Piczel Fetch could not find Stream Data")
 		return json.filter(s=>s["action"] === "live").map(s=>[

@@ -33,8 +33,8 @@ export class StreamsService{
 		return result
 	}
 
-	static GetErrors(){
-		return SETTINGS.GetSingle(ERRS_KEY) ?? {}
+	static async GetErrors(){
+		return await SETTINGS.GetSingle(ERRS_KEY) ?? {}
 	}
 
 	static ClearError(provider, UID, message){
@@ -143,7 +143,7 @@ export class StreamsService{
 	}
 
 	static async ErrsCount(errs=null){
-		return Object.entries(errs ?? await StreamsService.GetErrors()).reduce(acc, ([provider, clients])=>acc + Object.keys(clients).length, 0)
+		return Object.entries(errs ?? await StreamsService.GetErrors()).reduce((acc, [provider, clients])=>acc + Object.keys(clients).length, 0)
 	}
 	
 	static async StreamsCount(streams=null){

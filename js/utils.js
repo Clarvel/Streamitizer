@@ -142,7 +142,8 @@ export function AppendElemOrString(parent, child){
 export function SetElemOrString(parent, child){
 	if(typeof child === 'string' || child instanceof String)
 		parent.textContent = child
-	parent.replaceChildren(child)
+	else
+		parent.replaceChildren(child)
 }
 
 /**

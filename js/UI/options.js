@@ -1,6 +1,6 @@
 import { PROVIDER_TYPES, StreamsService } from "../streamsService.js"
 import { Browser } from "../browser.js"
-import { LoadI18nTextToElem, SetElemValue, GetElemValue, GetSelectOption, Clamp, GetI18nText } from "../utils.js"
+import { LoadI18nTextToElem, SetElemValue, GetElemValue, GetSelectOption, Clamp, GetI18nText, IsNullOrWhitespace } from "../utils.js"
 import { Settings, MetadataSettings } from "../settings.js"
 import { DisplayErrorModal, DisplayModal } from "./modalController.js"
 import { CLIENTS_KEY, DEFAULT, THEME } from "../IDs.js"
@@ -118,6 +118,10 @@ async function LoadOptionsContainer(){
 	}
 }
 
+async function ConnectAccount(provider, UID=undefined){
+	return StreamsService.Create(provider, UID)
+}
+
 async function LoadClientsContainer(){
 	const dropdown = ACCOUNTS_CONTAINER.lastElementChild
 	ACCOUNTS_CONTAINER.textContent = ""
@@ -130,10 +134,10 @@ async function LoadClientsContainer(){
 		listElem.append(...Object.entries(clients).map(([UID, name])=>{
 			const clientElem = document.importNode(ACCOUNT_TEMPLATE, true)
 			clientElem.querySelector("label").textContent = name
-			LoadI18TextToElem(clientElem.querySelector("label[name='err']"), "authExpiredError")
+			LoadI18nTextToElem(clientElem.querySelector("label[name='err']"), "authExpiredError")
 			const reconnectBtn = clientElem.querySelector("button[name='reconnect']")
 			LoadI18nTextToElem(reconnectBtn, "reconnectAccount")
-			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, StreamsService.Create(provider, UID)))
+			reconnectBtn.addEventListener("click", evt => OnAccountButton(evt, ConnectAccount(provider, UID)))
 			clientElem.querySelector("button[name='remove']").addEventListener("click", evt => OnAccountButton(evt, StreamsService.Delete(provider, UID)))
 			const errs = errors?.[provider]?.[UID]
 			if(errs && Object.keys(errs).length > 0){
@@ -149,7 +153,7 @@ async function OnAccountAddButtonSelected(evt){
 	const type = evt.target.value // get option type value and reset dropdown
 	ACCOUNTS_ADD_BUTTON.selectedIndex = GetSelectOption(ACCOUNTS_ADD_BUTTON, o=>o.hasAttribute("hidden")).index
 	try{
-		await StreamsService.Create(type)
+		await ConnectAccount(type)
 	}catch(e){
 		console.warn(e)
 		DisplayErrorModal(e.message)

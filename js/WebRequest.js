@@ -43,7 +43,7 @@ export class WebRequest{
 	 * @returns {Promise<T>}
 	 * @template T 
 	 */
-	static POST = (uri, options=undefined) => WebRequest.Fetch(uri, "POST", options)
+	static POST = (uri, options={}) => WebRequest.Fetch(uri, "POST", options)
 	
 	/**
 	 * @param {string} uri 
@@ -51,7 +51,7 @@ export class WebRequest{
 	 * @returns {Promise<T>}
 	 * @template T
 	 */
-	static GET(uri, options=undefined){
+	static GET(uri, options={}){
 		if(options?.["body"] != null)
 			throw Error("GET request cannot have a 'body' option")
 		return WebRequest.Fetch(uri, "GET", options)
